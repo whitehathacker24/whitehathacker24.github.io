@@ -1,0 +1,23 @@
+<html>
+<body>
+<p id="number"> </p>
+<button id="b" onclick"random();"> Get Number </button>
+</body>
+<script>
+function random() {
+document.getElementById("number").innerHTML = Math.floor(Math.random() * 100);
+}
+</script>
+<style>
+#number{
+font-size:90px;
+}
+#b{
+
+width:90;
+height: 55px;
+}
+</style
+</html>
+
+
