@@ -4,7 +4,7 @@
     <li>I am working on a public version of this.</li>
     <li>Use this for school reasons :D</li>
     <li>or not, idk really care abuse it to your hearts content</li>
-    <li>if you do find a public version for this release it pls</li>
+    <li>if you do find an easier way please tell me:D </li>
 </ol>
 <ul>
     <li>This will be updated once this releases the public</li>
