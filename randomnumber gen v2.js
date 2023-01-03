@@ -1,3 +1,4 @@
+<!Doctype html>
 <html> 
 <head>    
 //This hurts my head:(
