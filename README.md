@@ -4,7 +4,7 @@
     2. Use this for school reasons :D
     3. or not, idk really care abuse it to your hearts content
     4. if you do find an easier way please tell me:D
-    5.PLEASE HELP!!!!
+    5. PLEASE HELP!!!!
     
 **This will be updated once this releases to the public**
 
