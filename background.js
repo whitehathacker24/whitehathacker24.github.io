@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<script type="text/javascript">
 function moveBall() {
     ball.move(e, r);
     ball2.move(x, y);
@@ -35,3 +37,5 @@ add(ball3);
 var ball4 = new Circle(size);
 ball4.setPosition(getWidth()/2, getHeight()/2);
 add(ball4);
+</script>
+ </html>
