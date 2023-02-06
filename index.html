@@ -13,10 +13,11 @@ function typeWriter() {
     document.getElementById("demo").innerHTML += txt.charAt(i);
     i++;
     setTimeout(typeWriter, speed);
-    document.getElementById("demo").innerHTML -=txt.charAt(i);
-    i++
-    setTimeout(typeWriter, speed);
   }
+if(i > txt.length) {
+  document.getElementById("demo").innerHTML -= txt.charAt(i);
+   i++;
+    setTimeout(typeWriter, speed);
 }
 </script>
 </html>
