@@ -1,19 +1,12 @@
 <!DOCTYPE html>
 <html>
-<body onload ="typeWriter()">
-<style>
-body{
-  background-image: url('https://previews.123rf.com/images/minichsibas/minichsibas1607/minichsibas160700004/61015361-ginger-kitten-iready-for-jumping-cat-sit-on-the-arm-of-the-chair-orange-cat-fur-light-brown-eyes-.jpg');
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  background-size: 100% 100%;
- }
-</style>
+
 <script>
 var i = 0;
 var txt = 'Welcome to whitehathacker24.github.io';
 var speed = 50;
-function typeWriter() {
+window.onload = typeWriter
+  function typeWriter() {
   if (i < txt.length) {
     document.getElementById("demo").innerHTML += txt.charAt(i);
     i++;
@@ -22,7 +15,16 @@ function typeWriter() {
 }
 </script>
 </html>
-</body>
+<body>
+  <style>
+body{
+  background-image: url('https://previews.123rf.com/images/minichsibas/minichsibas1607/minichsibas160700004/61015361-ginger-kitten-iready-for-jumping-cat-sit-on-the-arm-of-the-chair-orange-cat-fur-light-brown-eyes-.jpg');
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: 100% 100%;
+ }
+</style>
+  </body>
 <button class="button">
 <a href="game.html">
   <img src="/images folder/th.jpg" ></img>
