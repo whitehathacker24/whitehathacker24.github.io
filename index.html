@@ -7,15 +7,15 @@
 var i = 0;
 var txt = 'Welcome to whitehathacker24.github.io';
 var speed = 50;
-
+var e ='           '
 function typeWriter() {
   if (i < txt.length) {
     document.getElementById("demo").innerHTML += txt.charAt(i);
     i++;
     setTimeout(typeWriter, speed);
   }
-if(i > txt.length) {
-  document.getElementById("demo").innerHTML -= txt.charAt(i);
+if(i > e.length) {
+  document.getElementById("demo").innerHTML += e.charAt(i);
    i++;
     setTimeout(typeWriter, speed);
 }
