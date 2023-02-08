@@ -14,21 +14,8 @@ body{
   </body>
 <button class="button">
 <a href="game.html">
-  <img onload="typeWriter" src="/images folder/th.jpg" ></img>
+  <img src="/images folder/th.jpg" ></img>
   <h1> Fun days:D</h1>
-  <p id="demo"></p>
-<script>
-var i = 0;
-var txt = 'Welcome to whitehathacker24.github.io';
-var speed = 50;
-  function typeWriter() {
-  if (i < txt.length) {
-    document.getElementById("demo").innerHTML += txt.charAt(i);
-    i++;
-    setTimeout(typeWriter, speed);
-  }
-}
-</script>
 </a></button>
 <a href="/images folder/e.jpg" download="whyyyyy">
 <button align="middle"class="button">
@@ -42,6 +29,19 @@ var speed = 50;
         <h1 align="middle">Study material </h1>
       </a>
       </button>
-<center><button align= center; type="button" onclick="alert('You have been hacked')">CLICK</button></center>
+<p onload="typeWriter"id="demo"></p>
+<script>
+var i = 0;
+var txt = 'Welcome to whitehathacker24.github.io';
+var speed = 50;
+  function typeWriter() {
+  if (i < txt.length) {
+    document.getElementById("demo").innerHTML += txt.charAt(i);
+    i++;
+    setTimeout(typeWriter, speed);
+  }
+}
+</script>
+      <center><button align= center; type="button" onclick="alert('You have been hacked')">CLICK</button></center>
 <center><a href="images folder/amongus.jpeg" download="misery" align="right;">Download this is you wish </a></center>
 </html>
