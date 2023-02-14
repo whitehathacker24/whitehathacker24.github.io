@@ -37,10 +37,14 @@ p{
 var math= document.getElementById("demo").innerHTML =
 Math.floor(Math.random() * 3)+1;
  var i = 0;
+  var g = 0;
+  var h = 0;
 var txt = 'Welcome to whitehathacker24.github.io';
 var txt2 ='Hello';
 var txt3 ='test';
  var speed = 50;
+  var speed2 = 50;
+  var speed3 = 50;
   function typeWriter() {
  if(math == 1;){
     if (i < txt.length) {
@@ -52,16 +56,16 @@ var txt3 ='test';
  } 
  if(math == 2;){
  if (i < txt.length) {
-    document.getElementById("demo").innerHTML += txt2.charAt(i);
-    i++;
-    setTimeout(typeWriter, speed);
+    document.getElementById("demo").innerHTML += txt2.charAt(g);
+    g++;
+    setTimeout(typeWriter, speed2);
   }
  }
     if(math == 3;){
 if (i < txt.length) {
-    document.getElementById("demo").innerHTML += txt3.charAt(i);
-    i++;
-    setTimeout(typeWriter, speed);
+    document.getElementById("demo").innerHTML += txt3.charAt(h);
+    h++;
+    setTimeout(typeWriter, speed3);
   }
     }
   }
