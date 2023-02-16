@@ -6,15 +6,15 @@
   <input type="text" id="username" name="username><br>
   <label for="password">Password: </label>
   <input type="text" id="password" name="password><br>
-  <input type="submit" value="Submit" onmouseover("typeWritermyD()")>
+  <input type="submit" value="Submit">
 </form>
-  <body onload="typeWritermyD()";</body>
+  <body onload="typeWriter()"</body>
   <p id="demo"></p>
   <script>
   var speed= 50;
    var i= 0;
     var txt= document.getElementById("username");
-    function typeWritermyD(){
+    function typeWriter(){
     if (i < txt.length) {
     document.getElementById("demo").innerHTML += txt.charAt(i);
     i++;
