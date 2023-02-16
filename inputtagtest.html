@@ -8,17 +8,19 @@
   <input type="text" id="password" name="password><br>
   <input type="submit">
 </form>
-  <body onload=""
+  <body onload="typeWritermyD()";</body>
   <p id="demo"></p>
   <script>
   var speed= 50;
    var i= 0;
     var txt= username;
+    function typeWritermyD(){
     if (i < txt.length) {
     document.getElementById("demo").innerHTML += txt.charAt(i);
     i++;
     setTimeout(typeWriter, speed);
  }   
+    }
   </script
 
 </body>
