@@ -34,7 +34,7 @@ p{
 <body onload="typeWriter()" src="/images folder/e"></body>
 <p id="demo" align="middle"></p>
 <script>
-var math = Math.floor(Math.random() * 5) + 1;
+var math = Math.floor(Math.random() * 6) + 1;
  var i = 0;
   var g = 0;
   var h = 0;
@@ -45,6 +45,7 @@ var txt2 ='Best Game Website ever!!!';
 var txt3 ='I like dogs:D';
   var txt4 ='In dev phase if you have any ideas pls let me know'
   var txt5 ='Should I include a essay writer bot im curious.'
+  var txt6 ='ajhshkjsadjkdsahjkasdhjksahjdkd'
  var speed = 50;
   var speed2 = 50;
   var speed3 = 50;
@@ -77,6 +78,13 @@ var txt3 ='I like dogs:D';
     }
     if(math == 5){
      document.getElementById("demo").innerHTML += txt5.charAt(m);
+    m++;
+    setTimeout(typeWriter, speed3);
+    }
+  }
+ 
+    if(math == 6){
+     document.getElementById("demo").innerHTML += txt6.charAt(m);
     m++;
     setTimeout(typeWriter, speed3);
     }
