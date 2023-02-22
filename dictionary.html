@@ -2,8 +2,22 @@
   <title> Dictionary </title>
   <form>
   <label for="fname">First name:</label>
-  <input type="text" id="fname" name="fname"><br><br>
+  <input type="text" id="fname" name="fname"<br>
   <label for="lname">Last name:</label>
-  <input type="text" id="lname" name="lname"><br><br>
+  <input type="text" id="lname" name="lname"<br>
   <input type="submit" value="Submit">
 </form>
+  <button onclick("typeWriter")></button>
+  <p id="demo"></p>
+  <script>
+  var txt= document.getElementById("fname")
+  var speed = 50;
+   var i=0;
+    function typeWriter(){
+    if (i < txt.length) {
+    document.getElementById("demo").innerHTML += txt.charAt(i);
+    i++;
+    setTimeout(typeWriter, speed);
+ } 
+    }
+  </script>
