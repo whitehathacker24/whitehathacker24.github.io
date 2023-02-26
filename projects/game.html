@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>My Game</title>
+	<style>
+		canvas {
+			border: 1px solid black;
+		}
+	</style>
+</head>
+<body>
+	<h1>My Game</h1>
+	<canvas id="canvas" width="400" height="400"></canvas>
+
+	<script>
+		// Define some variables
+		let canvas = document.getElementById("canvas");
+		let ctx = canvas.getContext("2d");
+		let score = 0;
+		let gameover = false;
+
+		// Define the player object
+		let player = {
+			x: 200,
+			y: 380,
+			width: 20,
+			height: 20,
+			speed: 5
+		};
+
+		// Define the enemy object
+		let enemy = {
+			x: 100,
+			y: 0,
+			width: 20,
+			height: 20,
+			speed: 2
+		};
+
+		// Define the game loop function
+		function gameLoop() {
+			// Clear the canvas
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+			// Move the player
+			if (keyState["ArrowLeft"] && player.x > 0) {
+				player.x -= player.speed;
+			}
+			if (keyState["ArrowRight"] && player.x < canvas.width - player.width) {
+				player.x += player.speed;
+			}
+
+			// Move the enemy
+			enemy.y += enemy.speed;
+			if (enemy.y > canvas.height) {
+				enemy.y = 0;
+				enemy.x = Math.random() * (canvas.width - enemy.width);
+			}
+
+			// Check for collision between player and enemy
+			if (player.x < enemy.x + enemy.width &&
+				player.x + player.width > enemy.x &&
+				player.y < enemy.y + enemy.height &&
+				player.y + player.height > enemy.y) {
+				gameover = true;
+			}
+
+			// Draw the player and enemy
+			ctx.fillStyle = "blue";
+			ctx.fillRect(player.x, player.y, player.width, player.height);
+			ctx.fillStyle = "red";
+			ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+
+			// Draw the score
+			ctx.fillStyle = "black";
+			ctx.font = "20px Arial";
+			ctx.fillText("Score: " + score, 10, 30);
+
+			// Check if game over
+			if (!gameover) {
+				window.requestAnimationFrame(gameLoop);
+			} else {
+				ctx.fillText("Game Over!", canvas.width/2 - 50, canvas.height/2);
+			}
+		}
+
+		// Define the keyboard event listener
+		let keyState = {};
+		window.addEventListener("keydown", function(event) {
+			keyState[event.code] = true;
+		});
+		window.addEventListener("keyup", function(event) {
+			keyState[event.code] = false;
+		});
+
+		// Start the game loop
+		window.requestAnimationFrame(gameLoop);
+	</script>
+</body>
+</html>
