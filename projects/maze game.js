@@ -1,7 +1,4 @@
-<DOCTYPE html>
-  <title> MAZE GAME </title>
-  <body onload="start()"></body>
-  <script>
+
   // Set up canvas element
 function start(){
     const canvas = document.getElementById('maze-canvas');
@@ -86,4 +83,3 @@ document.addEventListener('keydown', function(event) {
   if (event.key === 'ArrowDown') nextY++;
   if (event.key === 'ArrowLeft') nextX--;
 }
-</script>
