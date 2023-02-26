@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Tower Defense Game</title>
+	<style>
+		canvas {
+			border: 1px solid black;
+		}
+	</style>
+</head>
+<body>
+	<h1>Tower Defense Game</h1>
+	<canvas id="canvas" width="800" height="600"></canvas>
+
+	<script>
+		// Define some variables
+		let canvas = document.getElementById("canvas");
+		let ctx = canvas.getContext("2d");
+		let score = 0;
+		let lives = 5;
+		let gameover = false;
+
+		// Define the tower object
+		let tower = {
+			x: 0,
+			y: 0,
+			width: 50,
+			height: 50,
+			range: 100,
+			damage: 10,
+			fireRate: 1, // in shots per second
+			lastFired: 0 // timestamp of last shot fired
+		};
+
+		// Define the enemy object
+		let enemy = {
+			x: 0,
+			y: 0,
+			width: 20,
+			height: 20,
+			speed: 2,
+			health: 100,
+			reward: 10
+		};
+
+		// Define the game loop function
+		function gameLoop() {
+			// Clear the canvas
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+			// Draw the towers
+			ctx.fillStyle = "green";
+			ctx.fillRect(tower.x, tower.y, tower.width, tower.height);
+
+			// Draw the enemies
+			ctx.fillStyle = "red";
+			ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+
+			// Check for collision between tower and enemy
+			let dist = Math.sqrt((tower.x - enemy.x) ** 2 + (tower.y - enemy.y) ** 2);
+			if (dist < tower.range && Date.now() - tower.lastFired > 1000 / tower.fireRate) {
+				enemy.health -= tower.damage;
+				tower.lastFired = Date.now();
+			}
+
+			// Move the enemy
+			enemy.x += enemy.speed;
+			if (enemy.x > canvas.width) {
+				enemy.x = 0;
+				enemy.y = Math.random() * (canvas.height - enemy.height);
+			}
+
+			// Draw the score and lives
+			ctx.fillStyle = "black";
+			ctx.font = "20px Arial";
+			ctx.fillText("Score: " + score, 10, 30);
+			ctx.fillText("Lives: " + lives, 10, 60);
+
+			// Check if game over
+			if (lives <= 0) {
+				gameover = true;
+			}
+
+			if (!gameover) {
+				window.requestAnimationFrame(gameLoop);
+			} else {
+				ctx.fillText("Game Over!", canvas.width/2 - 50, canvas.height/2);
+			}
+		}
+
+		// Define the mouse event listener
+		canvas.addEventListener("mousedown", function(event) {
+			tower.x = event.clientX - canvas.getBoundingClientRect().left;
+			tower.y = event.clientY - canvas.getBoundingClientRect().top;
+		});
+
+		// Start the game loop
+		window.requestAnimationFrame(gameLoop);
+	</script>
+</body>
+</html>
