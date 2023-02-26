@@ -1,6 +1,5 @@
 
   // Set up canvas element
-function start(){
     const canvas = document.getElementById('maze-canvas');
 const ctx = canvas.getContext('2d');
 
@@ -82,4 +81,3 @@ document.addEventListener('keydown', function(event) {
   if (event.key === 'ArrowUp') nextY--;
   if (event.key === 'ArrowDown') nextY++;
   if (event.key === 'ArrowLeft') nextX--;
-}
