@@ -1,3 +1,106 @@
-<DOCTYPE html>
-  <title>:D</title>
-  <body><script src="/js files/maze game.js"</script></body>
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Maze Game</title>
+	<style>
+		#maze {
+			display: flex;
+			flex-wrap: wrap;
+			width: 400px;
+			height: 400px;
+			border: 1px solid black;
+		}
+
+		.wall {
+			background-color: black;
+		}
+
+		.player {
+			background-color: green;
+		}
+
+		.exit {
+			background-color: red;
+		}
+	</style>
+</head>
+<body>
+	<h1>Maze Game</h1>
+	<div id="maze"></div>
+
+	<script>
+		// Define the maze
+		let maze = [
+			[1, 1, 1, 1, 1],
+			[1, 0, 1, 0, 1],
+			[1, 0, 1, 0, 1],
+			[1, 0, 0, 0, 1],
+			[1, 1, 1, 1, 1]
+		];
+
+		// Define the player's starting position
+		let playerX = 1;
+		let playerY = 1;
+
+		// Define the exit position
+		let exitX = 3;
+		let exitY = 3;
+
+		// Draw the maze
+		let mazeDiv = document.getElementById("maze");
+		for (let i = 0; i < maze.length; i++) {
+			for (let j = 0; j < maze[i].length; j++) {
+				let cell = document.createElement("div");
+				cell.classList.add("cell");
+				if (maze[i][j] === 1) {
+					cell.classList.add("wall");
+				}
+				if (i === playerY && j === playerX) {
+					cell.classList.add("player");
+				}
+				if (i === exitY && j === exitX) {
+					cell.classList.add("exit");
+				}
+				mazeDiv.appendChild(cell);
+			}
+		}
+
+		// Define the keyboard event listener
+		document.addEventListener("keydown", function(event) {
+			switch (event.code) {
+				case "ArrowUp":
+					if (maze[playerY - 1][playerX] !== 1) {
+						playerY--;
+					}
+					break;
+				case "ArrowDown":
+					if (maze[playerY + 1][playerX] !== 1) {
+						playerY++;
+					}
+					break;
+				case "ArrowLeft":
+					if (maze[playerY][playerX - 1] !== 1) {
+						playerX--;
+					}
+					break;
+				case "ArrowRight":
+					if (maze[playerY][playerX + 1] !== 1) {
+						playerX++;
+					}
+					break;
+			}
+
+			// Update the player's position
+			let playerCell = document.querySelector(".player");
+			playerCell.classList.remove("player");
+			let newPlayerCell = mazeDiv.children[playerY * maze.length + playerX];
+			newPlayerCell.classList.add("player");
+
+			// Check if the player has reached the exit
+			if (playerX === exitX && playerY === exitY) {
+				alert("You win!");
+			}
+		});
+	</script>
+</body>
+</html>
