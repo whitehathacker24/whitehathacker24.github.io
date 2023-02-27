@@ -1,23 +1,20 @@
 <!DOCTYPE html>
-<html>
-
-<head>
-
+<body onload="typeWriter"></body>
+<p id="demo"</p>
 <script> 
-
 var customerName = prompt("Please enter your name", "");
 if (customerName!= null) {
     document.getElementById("username").value = customerName;
 }
-
+    var txt= customerName;
+    var speed= 50;
+    var i= 0;
+    function typeWriter(){
+    if (i < txt.length) {
+    document.getElementById("demo").innerHTML += txt.charAt(i);
+    i++;
+    setTimeout(typeWriter, speed);
+    }
+    }
 </script>
-
-</head>
-
-<body>
-
-Interested in learning more? Why not take an online JavaScript course?
-<input type="text" id="username" />
-
-</body>
 </html>
