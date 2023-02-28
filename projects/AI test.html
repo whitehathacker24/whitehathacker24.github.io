@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>AI Script to Store and Learn from Data</title>
+	<script src="https://unpkg.com/brain.js"></script>
+	<script>
+		function storeData() {
+			var input1 = document.getElementById("input1").value;
+			var input2 = document.getElementById("input2").value;
+			var output = document.getElementById("output").value;
+
+			var data = {
+				input1: input1,
+				input2: input2,
+				output: output
+			};
+
+			localStorage.setItem("data", JSON.stringify(data));
+		}
+
+		function trainModel() {
+			var data = JSON.parse(localStorage.getItem("data"));
+
+			var trainingData = [];
+
+			if (data !== null) {
+				trainingData.push({
+					input: {
+						input1: parseInt(data.input1),
+						input2: parseInt(data.input2)
+					},
+					output: {
+						output: parseInt(data.output)
+					}
+				});
+			}
+
+			var net = new brain.NeuralNetwork();
+
+			net.train(trainingData);
+
+			return net;
+		}
+
+		function makePrediction() {
+			var input1 = document.getElementById("input1").value;
+			var input2 = document.getElementById("input2").value;
+
+			var net = trainModel();
+
+			var output = net.run({
+				input1: parseInt(input1),
+				input2: parseInt(input2)
+			});
+
+			document.getElementById("output").value = Math.round(output.output);
+		}
+	</script>
+</head>
+<body>
+	<form>
+		<label for="input1">Input 1:</label>
+		<input type="number" id="input1"><br>
+
+		<label for="input2">Input 2:</label>
+		<input type="number" id="input2"><br>
+
+		<label for="output">Output:</label>
+		<input type="number" id="output" readonly><br>
+
+		<button type="button" onclick="storeData()">Store Data</button>
+		<button type="button" onclick="makePrediction()">Make Prediction</button>
+	</form>
+</body>
+</html>
