@@ -59,6 +59,7 @@ background-color: #d32f2f;
 <input type="text" id="display" readonly>
 <table>
 <th><button onclick="clearDisplay()">C</button></th>
+<td><button onclick="addToDisplay('^')">^</button></td>
 <td><button onclick="addToDisplay('%')">%</button></td>
 <td><button onclick="addToDisplay('/')">/</button></td>
 <td><button onclick="addToDisplay('*')">*</button></td>
@@ -98,7 +99,9 @@ return num1 * num2;
 function divide(num1, num2) {
 return num1 / num2;
 }
-
+function exponent(num1, num2) {
+ return num1 * num1 
+}
 // Define the addToDisplay function to add a digit or operator to the display
 function addToDisplay(value) {
 display.value += value;
@@ -130,6 +133,9 @@ result = divide(operands[0], operands[1]);
 break;
 case '%':
 result = divide(operands[0], 100) * operands[1];
+break;
+case'^' :
+result = multiply(operands[1], operands[1]);
 break;
 }
 
