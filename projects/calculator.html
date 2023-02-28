@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Calculator</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+.calculator {
+display: flex;
+flex-direction: column;
+align-items: center;
+padding: 10px;
+border: 1px solid #ccc;
+border-radius: 5px;
+box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.calculator input[type="text"] {
+padding: 5px;
+margin: 5px;
+font-size: 20px;
+text-align: right;
+width: 100%;
+border: none;
+border-radius: 5px;
+box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+.calculator button {
+padding: 10px;
+margin: 5px;
+font-size: 20px;
+border: none;
+border-radius: 5px;
+box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+cursor: pointer;
+}
+
+.calculator button:hover {
+background-color: #ddd;
+}
+
+.calculator button:focus {
+outline: none;
+}
+
+.calculator button.operator {
+background-color: #f44336;
+color: #fff;
+}
+
+.calculator button.operator:hover {
+background-color: #d32f2f;
+}
+</style>
+</head>
+<body>
+<div class="calculator">
+<input type="text" id="display" readonly>
+<button onclick="clearDisplay()">C</button>
+<button onclick="addToDisplay('%')">%</button>
+<button onclick="addToDisplay('/')">/</button>
+<button onclick="addToDisplay('*')">*</button>
+<button onclick="addToDisplay('7')">7</button>
+<button onclick="addToDisplay('8')">8</button>
+<button onclick="addToDisplay('9')">9</button>
+<button onclick="addToDisplay('-')">-</button>
+<button onclick="addToDisplay('4')">4</button>
+<button onclick="addToDisplay('5')">5</button>
+<button onclick="addToDisplay('6')">6</button>
+<button onclick="addToDisplay('+')">+</button>
+<button onclick="addToDisplay('1')">1</button>
+<button onclick="addToDisplay('2')">2</button>
+<button onclick="addToDisplay('3')">3</button>
+<button onclick="calculate()">=</button>
+</div>
+
+<script>
+// Get the display element
+var display = document.getElementById("display");
+
+// Define functions for each operation
+function add(num1, num2) {
+return num1 + num2;
+}
+
+function subtract(num1, num2) {
+return num1 - num2;
+}
+
+function multiply(num1, num2) {
+return num1 * num2;
+}
+
+function divide(num1, num2) {
+return num1 / num2;
+}
+
+// Define the addToDisplay function to add a digit or operator to the display
+function addToDisplay(value) {
+display.value += value;
+}
+
+// Define the calculate function to perform the calculation
+function calculate() {
+// Get the value of the display
+var expression = display.value;
+
+// Split the expression into operands and operator
+var operands = expression.match(/\d+/g).map(Number);
+var operator = expression.match(/[+\-*/%]/)[0];
+
+// Call the appropriate function based on the operator
+var result;
+switch (operator) {
+case '+':
+result = add(operands[0], operands[1]);
+break;
+case '-':
+result = subtract(operands[0], operands[1]);
+break;
+case '*':
+result = multiply(operands[0], operands[1]);
+break;
+case '/':
+result = divide(operands[0], operands[1]);
+break;
+case '%':
+result = divide(operands[0], 100) * operands[1];
+break;
+}
+
+// Display the result
+display.value = result;
+}
+
+// Define the clearDisplay function to clear the display
+function clearDisplay() {
+display.value = "";
+}
+</script>
+</body>
+</html>
