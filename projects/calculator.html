@@ -114,7 +114,7 @@ var expression = display.value;
 
 // Split the expression into operands and operator
 var operands = expression.match(/\d+/g).map(Number);
-var operator = expression.match(/[+\-*/%]/)[0];
+var operator = expression.match(/[+\-^*/%]/)[0];
 
 // Call the appropriate function based on the operator
 var result;
