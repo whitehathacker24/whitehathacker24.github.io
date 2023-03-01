@@ -31,7 +31,7 @@ p{
  font-size: 20px;
  }
 </style>
-<body onload="typeWriter()" src="/images folder/e"></body>
+<body onload="typeWriter()"></body>
 <p id="demo" align="middle"></p>
 <script>
 var math = Math.floor(Math.random() * 6) + 1;
@@ -43,9 +43,9 @@ var math = Math.floor(Math.random() * 6) + 1;
 var txt = 'Welcome to whitehathacker24.github.io';
 var txt2 ='Best Game Website ever!!!';
 var txt3 ='I like dogs:D';
-  var txt4 ='In dev phase if you have any ideas pls let me know'
-  var txt5 ='Should I include a essay writer bot im curious.'
-  var txt6 ='ajhshkjsadjkdsahjkasdhjksahjdkd'
+  var txt4 ='In dev phase if you have any ideas pls let me know';
+  var txt5 ='Should I include a essay writer bot im curious.';
+  var txt6 ='ajhshkjsadjkdsahjkasdhjksahjdkd';
  var speed = 50;
   var speed2 = 50;
   var speed3 = 50;
@@ -58,33 +58,36 @@ var txt3 ='I like dogs:D';
  } 
     }
     if(math == 2){
- if (h < txt.length) {
+ if (g < txt.length) {
     document.getElementById("demo").innerHTML += txt2.charAt(g);
     g++;
     setTimeout(typeWriter, speed2);
  }
     }
    if(math == 3){
-    if (h < txt.length) {
-    document.getElementById("demo").innerHTML += txt3.charAt(h);
+   if(h < txt.length){
+     document.getElementById("demo").innerHTML += txt3.charAt(h);
     h++;
     setTimeout(typeWriter, speed3);
-}
+   }
    }
     if(math == 4){
-     document.getElementById("demo").innerHTML += txt4.charAt(n);
+     if(n < txt.length){
+      document.getElementById("demo").innerHTML += txt4.charAt(n);
     n++;
     setTimeout(typeWriter, speed3);
     }
+    }
     if(math == 5){
-     document.getElementById("demo").innerHTML += txt5.charAt(m);
+     if(m < txt.length){
+      document.getElementById("demo").innerHTML += txt5.charAt(m);
     m++;
     setTimeout(typeWriter, speed3);
     }
-  }
  
     if(math == 6){
-     document.getElementById("demo").innerHTML += txt6.charAt(m);
+     if(m < txt.length){
+      document.getElementById("demo").innerHTML += txt6.charAt(m);
     m++;
     setTimeout(typeWriter, speed3);
     }
