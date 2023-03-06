@@ -18,6 +18,7 @@
 		let ctx = canvas.getContext("2d");
 		let score = 0;
 		let gameover = false;
+		var yes;
 
 		// Define the player object
 		let player = {
@@ -63,6 +64,9 @@
 				player.y < enemy.y + enemy.height &&
 				player.y + player.height > enemy.y) {
 				gameover = true;
+			}
+			if(yes<0){
+			score+=1;	
 			}
 
 			// Draw the player and enemy
