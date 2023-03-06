@@ -66,10 +66,12 @@
 				player.y + player.height > enemy.y) {
 				gameover = true;
 			}
-			if(yes<0){
+			if(yes < 0){
 			score+=1;	
 			}
-
+				if(score > 11){
+				gameover=true;
+				}
 			// Draw the player and enemy
 			ctx.fillStyle = "blue";
 			ctx.fillRect(player.x, player.y, player.width, player.height);
