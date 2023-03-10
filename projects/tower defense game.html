@@ -68,6 +68,7 @@
 			if (enemy.x > canvas.width) {
 				enemy.x = 0;
 				enemy.y = Math.random() * (canvas.height - enemy.height);
+				lives-= 1;
 			}
 
 			// Draw the score and lives
