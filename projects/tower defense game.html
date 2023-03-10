@@ -70,6 +70,10 @@
 				enemy.y = Math.random() * (canvas.height - enemy.height);
 				lives-= 1;
 			}
+			if (enemy.x < canvas.width){
+				enemy.x = 800;
+				enemy.y = enemy.height);
+			}
 
 			// Draw the score and lives
 			ctx.fillStyle = "black";
