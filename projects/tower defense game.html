@@ -83,7 +83,7 @@
 			enemy.x += enemy.speed;
 			if (enemy.x > canvas.width) {
 				enemy.x = 0;
-				enemy.y = (canvas.height - enemy.height);
+				enemy.y = canvas.height - enemy.height;
 				lives-= 1;
 			}
 			// idea enemy.y = Math.random() * (canvas.height - enemy.height);
