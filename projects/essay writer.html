@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Essay Writer</title>
+  </head>
+  <body>
+    <form id="essay-form">
+      <label for="title">Title:</label>
+      <input type="text" id="title" name="title"><br><br>
+      <label for="body">Body:</label>
+      <textarea id="body" name="body"></textarea><br><br>
+      <button type="submit">Submit</button>
+    </form>
+    <div id="essay-output"></div>
+    
+    <script>
+      const form = document.querySelector('#essay-form');
+      const output = document.querySelector('#essay-output');
+      
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const title = document.querySelector('#title').value;
+        const body = document.querySelector('#body').value;
+        
+        fetch('/process_essay', {
+          method: 'POST',
+          body: JSON.stringify({ title, body })
+        })
+        .then(response => response.text())
+        .then(data => {
+          output.innerHTML = data;
+        });
+      });
+    </script>
+  </body>
+</html>
+
+{% raw %}
+from flask import Flask, request
+
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return '''<!DOCTYPE html>
+<html>
+  <head>
+    <title>Essay Writer</title>
+  </head>
+  <body>
+    <form id="essay-form">
+      <label for="title">Title:</label>
+      <input type="text" id="title" name="title"><br><br>
+      <label for="body">Body:</label>
+      <textarea id="body" name="body"></textarea><br><br>
+      <button type="submit">Submit</button>
+    </form>
+    <div id="essay-output"></div>
+    
+    <script>
+      const form = document.querySelector('#essay-form');
+      const output = document.querySelector('#essay-output');
+      
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const title = document.querySelector('#title').value;
+        const body = document.querySelector('#body').value;
+        
+        fetch('/process_essay', {
+          method: 'POST',
+          body: JSON.stringify({ title, body })
+        })
+        .then(response => response.text())
+        .then(data => {
+          output.innerHTML = data;
+        });
+      });
+    </script>
+  </body>
+</html>'''
+
+@app.route('/process_essay', methods=['POST'])
+def process_essay():
+    data = request.get_json()
+    title = data['title']
+    body = data['body']
+    
+    # Perform some processing on the essay
+    # For example, you could use a natural language processing library like NLTK
+    # to identify key themes and summarize the essay
+    result = f"Title: {title}\n\n{body}"
+    
+    return result
+
+if __name__ == '__main__':
+    app.run()
+{% endraw %}
+//run the code in flask
