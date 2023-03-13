@@ -35,15 +35,6 @@
     </script>
   </body>
 </html>
-
-{% raw %}
-from flask import Flask, request
-
-app = Flask(__name__)
-
-@app.route('/')
-def index():
-    return '''<!DOCTYPE html>
 <html>
   <head>
     <title>Essay Writer</title>
@@ -80,4 +71,5 @@ def index():
     </script>
   </body>
 </html>
+
 
