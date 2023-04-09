@@ -1,1 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Interactive Background</title>
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+		}
+		.container {
+			position: relative;
+			width: 100%;
+			height: 100vh;
+			background-image: url('background.jpg');
+			background-size: cover;
+			overflow: hidden;
+		}
+		.background {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			opacity: 0.5;
+			background-color: #000;
+			z-index: -1;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="background"></div>
+		<!-- Content goes here -->
+	</div>
+
+	<script>
+		const container = document.querySelector('.container');
+		const background = document.querySelector('.background');
+		container.addEventListener('mousemove', (e) => {
+			const x = e.clientX / window.innerWidth;
+			const y = e.clientY / window.innerHeight;
+			background.style.backgroundColor = `rgb(${x * 255}, ${y * 255}, ${(x + y) * 255})`;
+		});
+	</script>
+</body>
+</html>
 
