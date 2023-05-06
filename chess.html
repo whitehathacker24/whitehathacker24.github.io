@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Chess Game</title>
+    <style>
+      #canvas {
+        display: block;
+        margin: auto;
+        border: 2px solid black;
+      }
+
+      /* Add the CSS for the win animation here */
+      @keyframes confetti {
+        0% {
+          transform: translateY(0) rotate(0);
+        }
+        100% {
+          transform: translateY(-800px) rotate(1080deg);
+        }
+      }
+
+      .win-animation {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 9999;
+        animation: confetti 3s ease-out forwards;
+      }
+
+      .win-message {
+        font-size: 36px;
+        color: #fff;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .confetti {
+        width: 10px;
+        height: 10px;
+        position: absolute;
+        background-color: #f4d03f;
+        box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas" width="400" height="400"></canvas>
+
+    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+    <script src="https://unpkg.com/stockfish-umd@10.0.0/dist/stockfish-umd.js"></script>
+
+    <script>
+      // Define the initial chess board layout here
+      const initialPosition = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+
+      // Create a new chessboard instance and attach it to the canvas element
+      const board = Chessboard('canvas', {
+        draggable: true,
+        position: initialPosition,
+        onDrop: handleMove,
+      });
+
+      // Create a new stockfish instance
+      const stockfish = Stockfish();
+
+      // Define the handleMove function here
+      function handleMove(source, target, piece, newPos, oldPos, orientation) {
+        // Check if the move is legal
+        const move = board.move({ from: source, to: target });
+        if (move === null) {
+          return 'snapback';
+        }
+
+        // If the move is legal, update the position on the board
+        updateBoard(newPos);
+
+        // If the game is over, display a win message and trigger the win animation
+        if (board.game_over()) {
+          const winAnimation = document.createElement('div');
+          winAnimation.classList.add('win-animation');
+
+          const winMessage = document.createElement('div');
+          winMessage.classList.add('win-message');
+          winMessage.textContent = 'Congratulations, you won!';
+
+          for (let i = 0; i < 100; i++) {
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
+            confetti.style.left = `${Math.random() * 100}%`;
+            confetti.style.animationDelay = `${Math.random() * 3}s`;
+            winAnimation.appendChild(confetti);
+          }
+
+          document.body.appendChild(winAnimation);
+          document.body.appendChild(winMessage);
+// Stop the stockfish engine
+stockfish.stop();
+      // Remove the win animation and message after 5 seconds
+      setTimeout(() => {
+        document.body.removeChild(winAnimation);
+        document.body.removeChild(winMessage);
+      }, 5000);
+    } else {
+      // If the game is not over, calculate the best move using stockfish
+      stockfish.postMessage(`position fen ${newPos}`);
+      stockfish.postMessage('go depth 10');
+    }
+  }
+
+  // Define the updateBoard function here
+  function updateBoard(newPosition) {
+    board.position(newPosition);
+  }
+
+  // Listen for messages from the stockfish instance
+  stockfish.onmessage = (event) => {
+    if (event && typeof event === 'object') {
+      const message = event.data;
+      if (message.startsWith('bestmove')) {
+        const bestMove = message.split(' ')[1];
+        board.move(bestMove);
+        updateBoard(board.fen());
+      }
+    }
+  };
+</script>
+  </body>
+</html>
