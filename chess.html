@@ -93,38 +93,37 @@
             winAnimation.appendChild(confetti);
           }
 
-          document.body.appendChild(winAnimation);
-          document.body.appendChild(winMessage);
-// Stop the stockfish engine
-stockfish.stop();
-      // Remove the win animation and message after 5 seconds
-      setTimeout(() => {
-        document.body.removeChild(winAnimation);
-        document.body.removeChild(winMessage);
-      }, 5000);
-    } else {
-      // If the game is not over, calculate the best move using stockfish
-      stockfish.postMessage(`position fen ${newPos}`);
-      stockfish.postMessage('go depth 10');
-    }
-  }
+          document.body.appendChild
+          // Remove the win message and animation after 10 seconds
+          setTimeout(() => {
+            winAnimation.remove();
+            winMessage.remove();
+          }, 10000);
 
-  // Define the updateBoard function here
-  function updateBoard(newPosition) {
-    board.position(newPosition);
-  }
+          return;
+        }
 
-  // Listen for messages from the stockfish instance
-  stockfish.onmessage = (event) => {
-    if (event && typeof event === 'object') {
-      const message = event.data;
-      if (message.startsWith('bestmove')) {
-        const bestMove = message.split(' ')[1];
-        board.move(bestMove);
-        updateBoard(board.fen());
+        // If it's the computer's turn, make a move with Stockfish
+        if (board.turn() === 'b') {
+          stockfish.postMessage(`position fen ${newPos}`);
+          stockfish.postMessage('go depth 5');
+        }
       }
-    }
-  };
-</script>
+
+      // Define the updateBoard function here
+      function updateBoard(position) {
+        board.position(position);
+      }
+
+      // Listen for messages from Stockfish
+      stockfish.addEventListener('message', (event) => {
+        // Get the best move from Stockfish and make it on the board
+        if (event.data.startsWith('bestmove')) {
+          const [, bestMove] = event.data.split(' ');
+          board.move(bestMove);
+          updateBoard(board.fen());
+        }
+      });
+    </script>
   </body>
 </html>
