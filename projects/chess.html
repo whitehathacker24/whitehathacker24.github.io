@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chess Game</title>
+    <style>
+        .chessboard {
+            border-collapse: collapse;
+        }
+        
+        .chessboard td {
+            width: 60px;
+            height: 60px;
+            text-align: center;
+            font-size: 32px;
+            border: 1px solid black;
+            cursor: pointer;
+        }
+        
+        .selected {
+            background-color: lightblue;
+        }
+        
+        .valid-move {
+            background-color: lightgreen;
+        }
+    </style>
+</head>
+<body>
+    <table class="chessboard" id="chessboard">
+        <tr>
+            <td onclick="handleClick(0, 0)"></td>
+            <td onclick="handleClick(0, 1)"></td>
+            <td onclick="handleClick(0, 2)"></td>
+            <td onclick="handleClick(0, 3)"></td>
+            <td onclick="handleClick(0, 4)"></td>
+            <td onclick="handleClick(0, 5)"></td>
+            <td onclick="handleClick(0, 6)"></td>
+            <td onclick="handleClick(0, 7)"></td>
+        </tr>
+        <!-- add more rows... -->
+    </table>
+
+    <script>
+        let chessboard = [
+            ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'],
+            ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
+            // add more rows...
+        ];
+
+        let selectedPiece = null;
+        let currentPlayer = 'white';
+
+        function renderChessboard() {
+            let table = document.getElementById('chessboard');
+            table.innerHTML = '';
+
+            for (let i = 0; i < 8; i++) {
+                let row = document.createElement('tr');
+
+                for (let j = 0; j < 8; j++) {
+                    let cell = document.createElement('td');
+                    cell.textContent = chessboard[i][j];
+
+                    if (selectedPiece && selectedPiece.row === i && selectedPiece.col === j) {
+                        cell.classList.add('selected');
+                    }
+
+                    if (isValidMove(i, j)) {
+                        cell.classList.add('valid-move');
+                    }
+
+                    cell.onclick = function() {
+                        handleClick(i, j);
+                    };
+
+                    row.appendChild(cell);
+                }
+
+                table.appendChild(row);
+            }
+        }
+
+        function handleClick(row, col) {
+            let piece = chessboard[row][col];
+
+            if (selectedPiece) {
+                if (isValidMove(row, col)) {
+                    movePiece(selectedPiece.row, selectedPiece.col, row, col);
+                    selectedPiece = null;
+                    currentPlayer = currentPlayer === 'white' ? 'black' : 'white';
+                } else {
+                    selectedPiece = { row, col };
+                }
+            } else {
+                if (piece && getCurrentPlayer(piece)) {
+                    selectedPiece = { row, col };
+                }
+            }
+
+            renderChessboard();
+        }
+
+        function movePiece(fromRow, fromCol, toRow, toCol) {
+            chessboard[toRow][toCol] = chessboard[fromRow][fromCol];
+            chessboard[fromRow][fromCol] = null;
+        }
+
+        function isValidMove(row, col) {
+            if (!selectedPiece || (row === selectedPiece.row && col === selectedPiece.col)) {
+                return false;
+            }
+
+            let piece = chessboard[selectedPiece.row][selectedPiece.col];
+
+            // Add your move validation logic here
+            // This is just a basic example for a pawn
+            if (piece === 'P') {
+                if (currentPlayer === 'white') {
+                    return row === selectedPiece.row - 1 && col === selectedPiece.col;
+                } else {
+                    return row === selectedPiece.row + 1 && col === selectedPiece.col;
+                }
+            }
+
+            return false;
+        }
+
+        function getCurrentPlayer(piece) {
+            return piece === piece.toUpperCase() ? 'white' : 'black';
+        }
+
+        renderChessboard();
+    </script>
+</body>
+</html>
