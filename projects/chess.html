@@ -28,22 +28,42 @@
 <body>
     <table class="chessboard" id="chessboard">
         <tr>
-            <td onclick="handleClick(0, 0)"></td>
-            <td onclick="handleClick(0, 1)"></td>
-            <td onclick="handleClick(0, 2)"></td>
-            <td onclick="handleClick(0, 3)"></td>
-            <td onclick="handleClick(0, 4)"></td>
-            <td onclick="handleClick(0, 5)"></td>
-            <td onclick="handleClick(0, 6)"></td>
-            <td onclick="handleClick(0, 7)"></td>
+            <td onclick="handleClick(0, 0)"><span class="piece" data-piece="♜"></span></td>
+            <td onclick="handleClick(0, 1)"><span class="piece" data-piece="♞"></span></td>
+            <td onclick="handleClick(0, 2)"><span class="piece" data-piece="♝"></span></td>
+            <td onclick="handleClick(0, 3)"><span class="piece" data-piece="♛"></span></td>
+            <td onclick="handleClick(0, 4)"><span class="piece" data-piece="♚"></span></td>
+            <td onclick="handleClick(0, 5)"><span class="piece" data-piece="♝"></span></td>
+            <td onclick="handleClick(0, 6)"><span class="piece" data-piece="♞"></span></td>
+            <td onclick="handleClick(0, 7)"><span class="piece" data-piece="♜"></span></td>
+        </tr>
+        <tr>
+            <td onclick="handleClick(1, 0)"><span class="piece" data-piece="♟"></span></td>
+            <td onclick="handleClick(1, 1)"><span class="piece" data-piece="♟"></span></td>
+            <td onclick="handleClick(1, 2)"><span class="piece" data-piece="♟"></span></td>
+            <td onclick="handleClick(1, 3)"><span class="piece" data-piece="♟"></span></td>
+            <td onclick="handleClick(1, 4)"><span class="piece" data-piece="♟"></span></td>
+            <td onclick="handleClick(1, 5)"><span class="piece" data-piece="♟"></span></td>
+            <td onclick="handleClick(1, 6)"><span class="piece" data-piece="♟"></span></td>
+            <td onclick="handleClick(1, 7)"><span class="piece" data-piece="♟"></span></td>
+        </tr>
+        <tr>
+            <td onclick="handleClick(2, 0)"></td>
+            <td onclick="handleClick(2, 1)"></td>
+            <td onclick="handleClick(2, 2)"></td>
+            <td onclick="handleClick(2, 3)"></td>
+            <td onclick="handleClick(2, 4)"></td>
+            <td onclick="handleClick(2, 5)"></td>
+            <td onclick="handleClick(2, 6)"></td>
+            <td onclick="handleClick(2, 7)"></td>
         </tr>
         <!-- add more rows... -->
     </table>
 
     <script>
         let chessboard = [
-            ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'],
-            ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
+            ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'],
+            ['♟', '♟', '♟', '♟', '♟', '♟', '♟', '♟'],
             // add more rows...
         ];
 
@@ -59,8 +79,8 @@
 
                 for (let j = 0; j < 8; j++) {
                     let cell = document.createElement('td');
-                    cell.textContent = chessboard[i][j];
-
+                    let piece = chessboard[i][j];
+                    
                     if (selectedPiece && selectedPiece.row === i && selectedPiece.col === j) {
                         cell.classList.add('selected');
                     }
@@ -72,6 +92,14 @@
                     cell.onclick = function() {
                         handleClick(i, j);
                     };
+
+                    if (piece) {
+                        let pieceElement = document.createElement('span');
+                        pieceElement.classList.add('piece');
+                        pieceElement.dataset.piece = piece;
+                        pieceElement.textContent = piece;
+                        cell.appendChild(pieceElement);
+                    }
 
                     row.appendChild(cell);
                 }
@@ -112,17 +140,122 @@
 
             let piece = chessboard[selectedPiece.row][selectedPiece.col];
 
-            // Add your move validation logic here
-            // This is just a basic example for a pawn
-            if (piece === 'P') {
-                if (currentPlayer === 'white') {
-                    return row === selectedPiece.row - 1 && col === selectedPiece.col;
-                } else {
-                    return row === selectedPiece.row + 1 && col === selectedPiece.col;
+            // Validate moves based on piece type
+            switch (piece.toLowerCase()) {
+                case '♟':
+                    return isValidPawnMove(row, col);
+                case '♜':
+                    return isValidRookMove(row, col);
+                case '♞':
+                    return isValidKnightMove(row, col);
+                case '♝':
+                    return isValidBishopMove(row, col);
+                case '♛':
+                    return isValidQueenMove(row, col);
+                case '♚':
+                    return isValidKingMove(row, col);
+                default:
+                    return false;
+            }
+        }
+
+        function isValidPawnMove(row, col) {
+            let piece = chessboard[selectedPiece.row][selectedPiece.col];
+            let direction = getCurrentPlayer(piece) === 'white' ? -1 : 1;
+
+            // Moving forward
+            if (col === selectedPiece.col && chessboard[row][col] === null) {
+                if (row === selectedPiece.row + direction) {
+                    return true;
+                } else if (
+                    (selectedPiece.row === 1 && direction === -1 && row === selectedPiece.row + 2) ||
+                    (selectedPiece.row === 6 && direction === 1 && row === selectedPiece.row - 2)
+                ) {
+                    // Moving two squares on the first move
+                    let blockingRow = selectedPiece.row + direction;
+                    return chessboard[blockingRow][col] === null;
                 }
             }
 
+            // Capturing diagonally
+            if (Math.abs(col - selectedPiece.col) === 1 && row === selectedPiece.row + direction) {
+                let targetPiece = chessboard[row][col];
+                return targetPiece && getCurrentPlayer(targetPiece) !== getCurrentPlayer(piece);
+            }
+
             return false;
+        }
+
+        function isValidRookMove(row, col) {
+            return (
+                row === selectedPiece.row ||
+                col === selectedPiece.col
+            ) && isPathClear(row, col);
+        }
+
+        function isValidKnightMove(row, col) {
+            let rowDiff = Math.abs(row - selectedPiece.row);
+            let colDiff = Math.abs(col - selectedPiece.col);
+            return (
+                (rowDiff === 2 && colDiff === 1) ||
+                (rowDiff === 1 && colDiff === 2)
+            );
+        }
+
+        function isValidBishopMove(row, col) {
+            let rowDiff = Math.abs(row - selectedPiece.row);
+            let colDiff = Math.abs(col - selectedPiece.col);
+            return rowDiff === colDiff && isPathClear(row, col);
+        }
+
+        function isValidQueenMove(row, col) {
+            return (
+                isValidRookMove(row, col) ||
+                isValidBishopMove(row, col)
+            );
+        }
+
+        function isValidKingMove(row, col) {
+            let rowDiff = Math.abs(row - selectedPiece.row);
+            let colDiff = Math.abs(col - selectedPiece.col);
+            return rowDiff <= 1 && colDiff <= 1;
+        }
+
+        function isPathClear(row, col) {
+            let startRow = selectedPiece.row;
+            let startCol = selectedPiece.col;
+
+            if (row === startRow) {
+                let step = col > startCol ? 1 : -1;
+                for (let i = startCol + step; i !== col; i += step) {
+                    if (chessboard[row][i] !== null) {
+                        return false;
+                    }
+                }
+            } else if (col === startCol) {
+                let step = row > startRow ? 1 : -1;
+                for (let i = startRow + step; i !== row; i += step) {
+                    if (chessboard[i][col] !== null) {
+                        return false;
+                    }
+                }
+            } else if (Math.abs(col - startCol) === Math.abs(row - startRow)) {
+                let colStep = col > startCol ? 1 : -1;
+                let rowStep = row > startRow ? 1 : -1;
+                let i = startRow + rowStep;
+                let j = startCol + colStep;
+                while (i !== row) {
+                    if (chessboard[i][j] !== null) {
+                        return false;
+                    }
+                    i += rowStep;
+                    j += colStep;
+                }
+            } else {
+                return false;
+            }
+
+            return true;
         }
 
         function getCurrentPlayer(piece) {
