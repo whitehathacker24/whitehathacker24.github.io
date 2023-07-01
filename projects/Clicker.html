@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Clicker Game</title>
+  <style>
+    body {
+      text-align: center;
+      font-family: Arial, sans-serif;
+    }
+    h1 {
+      margin-top: 20px;
+    }
+    #clickButton {
+      margin-top: 50px;
+      font-size: 24px;
+      padding: 10px 20px;
+    }
+    #points {
+      font-size: 36px;
+      margin-top: 20px;
+    }
+    #upgradeButton {
+      margin-top: 20px;
+    }
+    #achievements {
+      list-style: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+    #autoClickerButton {
+      margin-top: 20px;
+    }
+    #bonusPoints {
+      font-size: 24px;
+      margin-top: 20px;
+    }
+    #bonusLevels {
+      list-style: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+    #buildings {
+      list-style: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Clicker Game</h1>
+  <p>Click the button to earn points!</p>
+  <button id="clickButton">Click Me!</button>
+  <p>Points: <span id="points">0</span></p>
+  <h2>Upgrade</h2>
+  <p>Upgrade Cost: <span id="upgradeCost">10</span></p>
+  <button id="upgradeButton" disabled>Upgrade</button>
+  <h2>Achievements</h2>
+  <ul id="achievements"></ul>
+  <h2>Auto-Clicker</h2>
+  <p>Auto-Clicker Level: <span id="autoClickerLevel">0</span></p>
+  <p>Auto-Clicker Cost: <span id="autoClickerCost">50</span></p>
+  <button id="autoClickerButton" disabled>Buy Auto-Clicker</button>
+  <h2>Time Remaining: <span id="timeRemaining">60</span> seconds</h2>
+  <h2>Bonus Points</h2>
+  <p>Bonus Points: <span id="bonusPoints">1</span></p>
+  <ul id="bonusLevels">
+    <li>Level 1: Cost 100 points <button class="buyBonusButton" data-level="1">Buy</button></li>
+    <li>Level 2: Cost 200 points <button class="buyBonusButton" data-level="2">Buy</button></li>
+    <li>Level 3: Cost 300 points <button class="buyBonusButton" data-level="3">Buy</button></li>
+  </ul>
+  <h2>Buildings</h2>
+  <ul id="buildings">
+    <li>Grandmas: <span id="grandmasCount">0</span> <button class="buyBuildingButton" data-building="grandmas">Buy (Cost 100)</button></li>
+    <li>Farms: <span id="farmsCount">0</span> <button class="buyBuildingButton" data-building="farms">Buy (Cost 200)</button></li>
+    <li>Mines: <span id="minesCount">0</span> <button class="buyBuildingButton" data-building="mines">Buy (Cost 300)</button></li>
+    <li>Factories: <span id="factoriesCount">0</span> <button class="buyBuildingButton" data-building="factories">Buy (Cost 400)</button></li>
+    <li>Banks: <span id="banksCount">0</span> <button class="buyBuildingButton" data-building="banks">Buy (Cost 500)</button></li>
+    <li>Temples: <span id="templesCount">0</span> <button class="buyBuildingButton" data-building="temples">Buy (Cost 600)</button></li>
+    <li>Car Shops: <span id="carShopsCount">0</span> <button class="buyBuildingButton" data-building="carShops">Buy (Cost 700)</button></li>
+    <li>Whole Foods Markets: <span id="wholeFoodsCount">0</span> <button class="buyBuildingButton" data-building="wholeFoods">Buy (Cost 800)</button></li>
+    <li>Rockets: <span id="rocketsCount">0</span> <button class="buyBuildingButton" data-building="rockets">Buy (Cost 900)</button></li>
+    <li>Shuttles: <span id="shuttlesCount">0</span> <button class="buyBuildingButton" data-building="shuttles">Buy (Cost 1000)</button></li>
+  </ul>
+  <button id="saveButton">Save Game</button>
+  <button id="loadButton">Load Game</button>
+  <button id="resetButton">Reset Game</button>
+
+  <script>
+    // Game data object
+    let gameData = {
+      points: 0,
+      upgradeLevel: 0,
+      upgradeCost: 10,
+      autoClickerLevel: 0,
+      autoClickerCost: 50,
+      bonusPoints: 1,
+      grandmas: {
+        count: 0,
+        cost: 100,
+        pointsPerSecond: 1
+      },
+      farms: {
+        count: 0,
+        cost: 200,
+        pointsPerSecond: 2
+      },
+      mines: {
+        count: 0,
+        cost: 300,
+        pointsPerSecond: 3
+      },
+      factories: {
+        count: 0,
+        cost: 400,
+        pointsPerSecond: 4
+      },
+      banks: {
+        count: 0,
+        cost: 500,
+        pointsPerSecond: 5
+      },
+      temples: {
+        count: 0,
+        cost: 600,
+        pointsPerSecond: 6
+      },
+      carShops: {
+        count: 0,
+        cost: 700,
+        pointsPerSecond: 7
+      },
+      wholeFoods: {
+        count: 0,
+        cost: 800,
+        pointsPerSecond: 8
+      },
+      rockets: {
+        count: 0,
+        cost: 900,
+        pointsPerSecond: 9
+      },
+      shuttles: {
+        count: 0,
+        cost: 1000,
+        pointsPerSecond: 10
+      }
+    };
+
+    // Variables
+    let pointsDisplay;
+    let upgradeCostDisplay;
+    let upgradeButton;
+    let achievementsList;
+    let autoClickerLevelDisplay;
+    let autoClickerCostDisplay;
+    let autoClickerButton;
+    let timeRemainingDisplay;
+    let bonusPointsDisplay;
+    let bonusLevelButtons;
+    let buildingsCountDisplays;
+    let buyBuildingButtons;
+    let timerInterval;
+
+    // Function to initialize the game
+    function initGame() {
+      // Initialize variables
+      pointsDisplay = document.getElementById('points');
+      upgradeCostDisplay = document.getElementById('upgradeCost');
+      upgradeButton = document.getElementById('upgradeButton');
+      achievementsList = document.getElementById('achievements');
+      autoClickerLevelDisplay = document.getElementById('autoClickerLevel');
+      autoClickerCostDisplay = document.getElementById('autoClickerCost');
+      autoClickerButton = document.getElementById('autoClickerButton');
+      timeRemainingDisplay = document.getElementById('timeRemaining');
+      bonusPointsDisplay = document.getElementById('bonusPoints');
+      bonusLevelButtons = document.getElementsByClassName('buyBonusButton');
+      buildingsCountDisplays = {
+        grandmas: document.getElementById('grandmasCount'),
+        farms: document.getElementById('farmsCount'),
+        mines: document.getElementById('minesCount'),
+        factories: document.getElementById('factoriesCount'),
+        banks: document.getElementById('banksCount'),
+        temples: document.getElementById('templesCount'),
+        carShops: document.getElementById('carShopsCount'),
+        wholeFoods: document.getElementById('wholeFoodsCount'),
+        rockets: document.getElementById('rocketsCount'),
+        shuttles: document.getElementById('shuttlesCount')
+      };
+      buyBuildingButtons = document.getElementsByClassName('buyBuildingButton');
+
+      // Load game data
+      loadGameData();
+
+      // Add event listeners
+      document.getElementById('clickButton').addEventListener('click', handleClick);
+      upgradeButton.addEventListener('click', handleUpgradeClick);
+      autoClickerButton.addEventListener('click', handleAutoClickerClick);
+      document.getElementById('resetButton').addEventListener('click', resetGame);
+      document.getElementById('saveButton').addEventListener('click', saveGameData);
+      document.getElementById('loadButton').addEventListener('click', loadGameData);
+
+      // Add event listeners to bonus level buttons
+      for (let i = 0; i < bonusLevelButtons.length; i++) {
+        bonusLevelButtons[i].addEventListener('click', handleBonusClick);
+      }
+
+      // Add event listeners to buy building buttons
+      for (let i = 0; i < buyBuildingButtons.length; i++) {
+        buyBuildingButtons[i].addEventListener('click', handleBuyBuildingClick);
+      }
+
+      // Start the timer
+      startTimer();
+
+      // Update the UI
+      updateUI();
+    }
+
+    // Function to handle click events
+    function handleClick() {
+      // Increment points
+      gameData.points++;
+
+      // Check and unlock achievements
+      checkAchievements();
+
+      // Update points display
+      pointsDisplay.textContent = gameData.points;
+    }
+
+    // Function to handle upgrade button click
+    function handleUpgradeClick() {
+      // Check if player has enough points to purchase the upgrade
+      if (gameData.points >= gameData.upgradeCost) {
+        // Deduct upgrade cost from points
+        gameData.points -= gameData.upgradeCost;
+
+        // Increase upgrade level
+        gameData.upgradeLevel++;
+
+        // Increase upgrade cost
+        gameData.upgradeCost *= 2;
+
+        // Update points display
+        pointsDisplay.textContent = gameData.points;
+
+        // Update upgrade cost display
+        upgradeCostDisplay.textContent = gameData.upgradeCost;
+
+        // Update upgrade button state
+        updateUpgradeButtonState();
+      }
+    }
+
+    // Function to handle auto-clicker button click
+    function handleAutoClickerClick() {
+      // Check if player has enough points to purchase the auto-clicker
+      if (gameData.points >= gameData.autoClickerCost) {
+        // Deduct auto-clicker cost from points
+        gameData.points -= gameData.autoClickerCost;
+
+        // Increase auto-clicker level
+        gameData.autoClickerLevel++;
+
+        // Increase auto-clicker cost
+        gameData.autoClickerCost *= 2;
+
+        // Update points display
+        pointsDisplay.textContent = gameData.points;
+
+        // Update auto-clicker level display
+        autoClickerLevelDisplay.textContent = gameData.autoClickerLevel;
+
+        // Update auto-clicker cost display
+        autoClickerCostDisplay.textContent = gameData.autoClickerCost;
+
+        // Update auto-clicker button state
+        updateAutoClickerButtonState();
+
+        // Start the auto-clicker
+        startAutoClicker();
+      }
+    }
+
+    // Function to handle bonus level button click
+    function handleBonusClick(event) {
+      const level = parseInt(event.target.dataset.level);
+      const bonusCost = level * 100;
+
+      // Check if player has enough points to purchase the bonus level
+      if (gameData.points >= bonusCost) {
+        // Deduct bonus cost from points
+        gameData.points -= bonusCost;
+
+        // Increase bonus points based on level
+        gameData.bonusPoints += level;
+
+        // Update points display
+        pointsDisplay.textContent = gameData.points;
+
+        // Update bonus points display
+        bonusPointsDisplay.textContent = gameData.bonusPoints;
+
+        // Disable the button
+        event.target.disabled = true;
+
+        // Add achievement
+        addAchievement(`Purchased Bonus Level ${level}`);
+      }
+    }
+
+    // Function to handle buy building button click
+    function handleBuyBuildingClick(event) {
+      const building = event.target.dataset.building;
+      const buildingData = gameData[building];
+      const buildingCost = buildingData.cost;
+
+      // Check if player has enough points to purchase the building
+      if (gameData.points >= buildingCost) {
+        // Deduct building cost from points
+        gameData.points -= buildingCost;
+
+        // Increase building count
+        buildingData.count++;
+
+        // Increase building cost
+        buildingData.cost *= 2;
+
+        // Update points display
+        pointsDisplay.textContent = gameData.points;
+
+        // Update building count display
+        buildingsCountDisplays[building].textContent = buildingData.count;
+
+        // Update building cost display
+        event.target.textContent = `Buy (Cost ${buildingData.cost})`;
+
+        // Update upgrade button state
+        updateUpgradeButtonState();
+
+        // Update auto-clicker button state
+        updateAutoClickerButtonState();
+
+        // Update building button state
+        updateBuildingButtonState(building);
+
+        // Start generating points from the building
+        startBuilding(building);
+
+        // Add achievement
+        addAchievement(`Purchased ${building}`);
+      }
+    }
+
+    // Function to start the auto-clicker
+    function startAutoClicker() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+      }
+
+      timerInterval = setInterval(() => {
+        gameData.points += gameData.autoClickerLevel;
+        pointsDisplay.textContent = gameData.points;
+      }, 1000);
+    }
+
+    // Function to start generating points from a building
+    function startBuilding(building) {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+      }
+
+      timerInterval = setInterval(() => {
+        const buildingData = gameData[building];
+        gameData.points += buildingData.pointsPerSecond;
+        pointsDisplay.textContent = gameData.points;
+      }, 1000);
+    }
+
+    // Function to start the timer
+    function startTimer() {
+      let timeRemaining = 60;
+      timeRemainingDisplay.textContent = timeRemaining;
+
+      timerInterval = setInterval(() => {
+        timeRemaining--;
+        timeRemainingDisplay.textContent = timeRemaining;
+
+        if (timeRemaining <= 0) {
+          clearInterval(timerInterval);
+          endGame();
+        }
+      }, 1000);
+    }
+
+    // Function to end the game
+    function endGame() {
+      // Disable buttons
+      document.getElementById('clickButton').disabled = true;
+      upgradeButton.disabled = true;
+      autoClickerButton.disabled = true;
+
+      // Disable bonus level buttons
+      for (let i = 0; i < bonusLevelButtons.length; i++) {
+        bonusLevelButtons[i].disabled = true;
+      }
+
+      // Disable buy building buttons
+      for (let i = 0; i < buyBuildingButtons.length; i++) {
+        buyBuildingButtons[i].disabled = true;
+      }
+
+      // Add final achievements
+      if (gameData.points >= 1000) {
+        addAchievement('Reached 1000 points');
+      }
+      if (gameData.points >= 5000) {
+        addAchievement('Reached 5000 points');
+      }
+      if (gameData.points >= 10000) {
+        addAchievement('Reached 10000 points');
+      }
+    }
+
+    // Function to update the upgrade button state
+    function updateUpgradeButtonState() {
+      if (gameData.points >= gameData.upgradeCost) {
+        upgradeButton.disabled = false;
+      } else {
+        upgradeButton.disabled = true;
+      }
+    }
+
+    // Function to update the auto-clicker button state
+    function updateAutoClickerButtonState() {
+      if (gameData.points >= gameData.autoClickerCost && gameData.autoClickerLevel === 0) {
+        autoClickerButton.disabled = false;
+      } else {
+        autoClickerButton.disabled = true;
+      }
+    }
+
+    // Function to update the building button state
+    function updateBuildingButtonState(building) {
+      const buildingData = gameData[building];
+      const buildingButton = document.querySelector(`.buyBuildingButton[data-building="${building}"]`);
+
+      if (gameData.points >= buildingData.cost) {
+        buildingButton.disabled = false;
+      } else {
+        buildingButton.disabled = true;
+      }
+    }
+
+    // Function to check and unlock achievements
+    function checkAchievements() {
+      if (gameData.points >= 10) {
+        addAchievement('Reached 10 points');
+      }
+      if (gameData.points >= 100) {
+        addAchievement('Reached 100 points');
+      }
+      if (gameData.points >= 500) {
+        addAchievement('Reached 500 points');
+      }
+    }
+
+    // Function to add an achievement to the list
+    function addAchievement(achievement) {
+      const listItem = document.createElement('li');
+      listItem.textContent = achievement;
+      achievementsList.appendChild(listItem);
+    }
+
+    // Function to save the game data to local storage
+    function saveGameData() {
+      localStorage.setItem('clickerGameData', JSON.stringify(gameData));
+    }
+
+    // Function to load the game data from local storage
+    function loadGameData() {
+      const savedData = localStorage.getItem('clickerGameData');
+      if (savedData) {
+        gameData = JSON.parse(savedData);
+      }
+      updateUI();
+    }
+
+    // Function to reset the game data
+    function resetGame() {
+      localStorage.removeItem('clickerGameData');
+      gameData = {
+        points: 0,
+        upgradeLevel: 0,
+        upgradeCost: 10,
+        autoClickerLevel: 0,
+        autoClickerCost: 50,
+        bonusPoints: 1,
+        grandmas: {
+          count: 0,
+          cost: 100,
+          pointsPerSecond: 1
+        },
+        farms: {
+          count: 0,
+          cost: 200,
+          pointsPerSecond: 2
+        },
+        mines: {
+          count: 0,
+          cost: 300,
+          pointsPerSecond: 3
+        },
+        factories: {
+          count: 0,
+          cost: 400,
+          pointsPerSecond: 4
+        },
+        banks: {
+          count: 0,
+          cost: 500,
+          pointsPerSecond: 5
+        },
+        temples: {
+          count: 0,
+          cost: 600,
+          pointsPerSecond: 6
+        },
+        carShops: {
+          count: 0,
+          cost: 700,
+          pointsPerSecond: 7
+        },
+        wholeFoods: {
+          count: 0,
+          cost: 800,
+          pointsPerSecond: 8
+        },
+        rockets: {
+          count: 0,
+          cost: 900,
+          pointsPerSecond: 9
+        },
+        shuttles: {
+          count: 0,
+          cost: 1000,
+          pointsPerSecond: 10
+        }
+      };
+      updateUI();
+    }
+
+    // Function to update the UI
+    function updateUI() {
+      // Update points display
+      pointsDisplay.textContent = gameData.points;
+
+      // Update upgrade cost display
+      upgradeCostDisplay.textContent = gameData.upgradeCost;
+
+      // Update auto-clicker level display
+      autoClickerLevelDisplay.textContent = gameData.autoClickerLevel;
+
+      // Update auto-clicker cost display
+      autoClickerCostDisplay.textContent = gameData.autoClickerCost;
+
+      // Update bonus points display
+      bonusPointsDisplay.textContent = gameData.bonusPoints;
+
+      // Update building count displays
+      buildingsCountDisplays.grandmas.textContent = gameData.grandmas.count;
+      buildingsCountDisplays.farms.textContent = gameData.farms.count;
+      buildingsCountDisplays.mines.textContent = gameData.mines.count;
+      buildingsCountDisplays.factories.textContent = gameData.factories.count;
+      buildingsCountDisplays.banks.textContent = gameData.banks.count;
+      buildingsCountDisplays.temples.textContent = gameData.temples.count;
+      buildingsCountDisplays.carShops.textContent = gameData.carShops.count;
+      buildingsCountDisplays.wholeFoods.textContent = gameData.wholeFoods.count;
+      buildingsCountDisplays.rockets.textContent = gameData.rockets.count;
+      buildingsCountDisplays.shuttles.textContent = gameData.shuttles.count;
+
+      // Update upgrade button state
+      updateUpgradeButtonState();
+
+      // Update auto-clicker button state
+      updateAutoClickerButtonState();
+
+      // Update building button states
+      updateBuildingButtonState('grandmas');
+      updateBuildingButtonState('farms');
+      updateBuildingButtonState('mines');
+      updateBuildingButtonState('factories');
+      updateBuildingButtonState('banks');
+      updateBuildingButtonState('temples');
+      updateBuildingButtonState('carShops');
+      updateBuildingButtonState('wholeFoods');
+      updateBuildingButtonState('rockets');
+      updateBuildingButtonState('shuttles');
+    }
+
+    // Initialize the game
+    initGame();
+  </script>
+</body>
+
+</html>
