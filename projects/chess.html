@@ -1,66 +1,149 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Chess Board</title>
   <style>
-    .board {
+    .chessboard {
       display: grid;
-      grid-template-columns: repeat(8, 50px);
-      grid-template-rows: repeat(8, 50px);
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: repeat(8, 1fr);
+      width: 400px;
+      height: 400px;
+      margin: 20px;
     }
 
     .cell {
       display: flex;
-      align-items: center;
       justify-content: center;
-      font-size: 30px;
-      cursor: pointer;
+      align-items: center;
+      font-size: 24px;
+      font-weight: bold;
     }
 
-    .white {
-      background-color: #f0d9b5;
-    }
-
-    .black {
+    .cell.black {
       background-color: #b58863;
-      color: white;
+      color: #fff;
     }
 
-    .selected {
-      background-color: #a4c2f4 !important;
+    .cell.white {
+      background-color: #f0d9b5;
+      color: #000;
     }
 
-    .legal-move {
-      background-color: #76b7ef !important;
+    .cell.selected {
+      background-color: #f1c40f;
     }
 
-    .check {
-      background-color: #ff0000 !important;
+    .cell.check {
+      background-color: #e74c3c;
     }
 
-    .checkmate {
-      background-color: #800000 !important;
+    .cell.checkmate {
+      background-color: #c0392b;
     }
   </style>
 </head>
 <body>
-  <div class="board">
-    <script>
-      const pieces = {
-        'R': '♖',
-        'N': '♘',
-        'B': '♗',
-        'Q': '♕',
-        'K': '♔',
-        'P': '♙',
-        'r': '♜',
-        'n': '♞',
-        'b': '♝',
-        'q': '♛',
-        'k': '♚',
-        'p': '♟',
-      };
+  <div class="chessboard" id="chessboard"></div>
 
+  <script>
+    const board = [
+      ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
+      ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
+      [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+      [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+      [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+      [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+      ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
+      ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'],
+    ];
+
+    let isWhiteTurn = true;
+    let selectedPiece = null;
+    let legalMoves = [];
+    let isCheck = false;
+    let isCheckmate = false;
+    let whiteKingPosition = { row: 7, col: 4 };
+    let blackKingPosition = { row: 0, col: 4 };
+
+    function updateBoard() {
+      const chessboard = document.getElementById('chessboard');
+      chessboard.innerHTML = '';
+
+      for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 8; col++) {
+          const piece = board[row][col];
+          const isBlack = (row + col) % 2 === 1;
+          const cell = document.createElement('div');
+          cell.className = `cell ${isBlack ? 'black' : 'white'}`;
+          cell.textContent = getPieceIcon(piece);
+          chessboard.appendChild(cell);
+
+          if (isCheck && (row === whiteKingPosition.row && col === whiteKingPosition.col || row === blackKingPosition.row && col === blackKingPosition.col)) {
+            cell.classList.add('check');
+          }
+
+          if (isCheckmate && (row === whiteKingPosition.row && col === whiteKingPosition.col || row === blackKingPosition.row && col === blackKingPosition.col)) {
+            cell.classList.add('checkmate');
+          }
+
+          cell.onclick = function() {
+            if (piece === ' ' && selectedPiece === null) {
+              return;
+            }
+
+            if (selectedPiece === null) {
+              if (isWhitePiece(piece) !== isWhiteTurn) {
+                return;
+              }
+
+              selectedPiece = { piece, row, col };
+              legalMoves = calculatePieceMoves(row, col, piece);
+              cell.classList.add('selected');
+            } else {
+              const destRow = Math.floor(legalMoves[this.dataset.index] / 8);
+              const destCol = legalMoves[this.dataset.index] % 8;
+              movePiece(destRow, destCol);
+              cell.classList.remove('selected');
+            }
+
+            updateBoard();
+          };
+
+          cell.dataset.index = row * 8 + col;
+        }
+      }
+    }
+
+    function getPieceIcon(piece) {
+      switch (piece) {
+        case 'r':
+          return '♜';
+        case 'n':
+          return '♞';
+        case 'b':
+          return '♝';
+        case 'q':
+          return '♛';
+        case 'k':
+          return '♚';
+        case 'p':
+          return '♟';
+        case 'R':
+          return '♖';
+        case 'N':
+          return '♘';
+        case 'B':
+          return '♗';
+        case 'Q':
+          return '♕';
+        case 'K':
+          return '♔';
+        case 'P':
+          return '♙';
+        default:
+          return '';
+      }
+    }
       const board = [
         ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
         ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
