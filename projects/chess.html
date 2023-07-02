@@ -2,43 +2,50 @@
 <html>
 <head>
   <style>
-    .chessboard {
+   .chessboard {
       display: grid;
       grid-template-columns: repeat(8, 1fr);
       grid-template-rows: repeat(8, 1fr);
-      width: 400px;
-      height: 400px;
-      margin: 20px;
+      width: 600px;
+      height: 600px;
+      margin: 20px auto;
+      border: 2px solid #333;
+      background-color: #f0d9b5;
     }
 
     .cell {
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 24px;
-      font-weight: bold;
-    }
-
-    .cell.black {
-      background-color: #b58863;
-      color: #fff;
+      font-size: 48px;
+      color: #333;
     }
 
     .cell.white {
-      background-color: #f0d9b5;
-      color: #000;
+      background-image: url('white-cell.png');
+      background-size: cover;
+    }
+
+    .cell.black {
+      background-image: url('black-cell.png');
+      background-size: cover;
     }
 
     .cell.selected {
-      background-color: #f1c40f;
+      background-color: rgba(241, 196, 15, 0.8);
     }
 
     .cell.check {
-      background-color: #e74c3c;
+      background-color: rgba(231, 76, 60, 0.8);
     }
 
     .cell.checkmate {
-      background-color: #c0392b;
+      background-color: rgba(192, 57, 43, 0.8);
+    }
+
+    .piece {
+      width: 80%;
+      height: 80%;
     }
   </style>
 </head>
