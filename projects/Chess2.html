@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chess Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(8, 50px);
+    }
+    .square {
+      width: 50px;
+      height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 30px;
+      cursor: pointer;
+    }
+    .white {
+      background-color: #f0d9b5;
+    }
+    .black {
+      background-color: #b58863;
+      color: white;
+    }
+    .selected {
+      outline: 2px solid yellow;
+    }
+  </style>
+</head>
+<body>
+  <div class="board" id="board"></div>
+  <script>
+    // Define chess pieces icons
+    const piecesIcons = {
+      whiteKing: '♔',
+      whiteQueen: '♕',
+      whiteRook: '♖',
+      whiteBishop: '♗',
+      whiteKnight: '♘',
+      whitePawn: '♙',
+      blackKing: '♚',
+      blackQueen: '♛',
+      blackRook: '♜',
+      blackBishop: '♝',
+      blackKnight: '♞',
+      blackPawn: '♟',
+    };
+
+    // Chessboard representation
+    const chessboard = [
+      ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
+      ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
+      ['', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', ''],
+      ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
+      ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'],
+    ];
+
+    const boardElement = document.getElementById('board');
+
+    function renderBoard() {
+      let isWhite = true;
+      for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 8; col++) {
+          const square = document.createElement('div');
+          square.classList.add('square', isWhite ? 'white' : 'black');
+          square.dataset.row = row;
+          square.dataset.col = col;
+          square.textContent = piecesIcons[chessboard[row][col].toLowerCase()] || '';
+          boardElement.appendChild(square);
+          isWhite = !isWhite;
+        }
+        isWhite = !isWhite;
+      }
+    }
+
+    renderBoard();
+
+    // Move a piece
+    let selectedPiece = null;
+    const squares = document.querySelectorAll('.square');
+
+    squares.forEach((square) => {
+      square.addEventListener('click', () => {
+        if (selectedPiece) {
+          const rowFrom = parseInt(selectedPiece.dataset.row);
+          const colFrom = parseInt(selectedPiece.dataset.col);
+          const rowTo = parseInt(square.dataset.row);
+          const colTo = parseInt(square.dataset.col);
+          const piece = chessboard[rowFrom][colFrom];
+          if (isLegalMove(rowFrom, colFrom, rowTo, colTo, piece)) {
+            chessboard[rowTo][colTo] = piece;
+            chessboard[rowFrom][colFrom] = '';
+            square.textContent = piecesIcons[piece.toLowerCase()] || '';
+            selectedPiece.textContent = '';
+          }
+          selectedPiece.classList.remove('selected');
+          selectedPiece = null;
+          checkAndCheckmate();
+        } else {
+          if (square.textContent !== '') {
+            selectedPiece = square;
+            selectedPiece.classList.add('selected');
+          }
+        }
+      });
+    });
+
+    // Legal move logic
+    function isLegalMove(rowFrom, colFrom, rowTo, colTo, piece) {
+      const pieceColor = piece === piece.toUpperCase() ? 'white' : 'black';
+
+      // Check if the move is within the chessboard
+      if (rowTo < 0 || rowTo > 7 || colTo < 0 || colTo > 7) {
+        return false;
+      }
+
+      // Check if the destination square is occupied by a piece of the same color
+      if (chessboard[rowTo][colTo] !== '' && pieceColor === (chessboard[rowTo][colTo] === chessboard[rowTo][colTo].toUpperCase() ? 'white' : 'black')) {
+        return false;
+      }
+
+      // Check specific rules for each piece
+      switch (piece.toLowerCase()) {
+        case 'k':
+          return isLegalKingMove(rowFrom, colFrom, rowTo, colTo, pieceColor);
+        case 'q':
+          return isLegalQueenMove(rowFrom, colFrom, rowTo, colTo, pieceColor);
+        case 'r':
+          return isLegalRookMove(rowFrom, colFrom, rowTo, colTo, pieceColor);
+        case 'b':
+          return isLegalBishopMove(rowFrom, colFrom, rowTo, colTo, pieceColor);
+        case 'n':
+          return isLegalKnightMove(rowFrom, colFrom, rowTo, colTo, pieceColor);
+        case 'p':
+          return isLegalPawnMove(rowFrom, colFrom, rowTo, colTo, pieceColor);
+        default:
+          return false;
+      }
+    }
+
+    function isLegalKingMove(rowFrom, colFrom, rowTo, colTo, pieceColor) {
+      const rowDiff = Math.abs(rowTo - rowFrom);
+      const colDiff = Math.abs(colTo - colFrom);
+
+      // King can move one square in any direction
+      return (rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1) || (rowDiff === 1 && colDiff === 1);
+    }
+
+    function isLegalQueenMove(rowFrom, colFrom, rowTo, colTo, pieceColor) {
+      const rowDiff = Math.abs(rowTo - rowFrom);
+      const colDiff = Math.abs(colTo - colFrom);
+
+      // Queen can move any number of squares diagonally, horizontally, or vertically
+      return (
+        (rowDiff === colDiff && rowDiff !== 0) || // Diagonal move
+        (rowFrom === rowTo && colFrom !== colTo) || // Horizontal move
+        (rowFrom !== rowTo && colFrom === colTo) // Vertical move
+      );
+    }
+
+    function isLegalRookMove(rowFrom, colFrom, rowTo, colTo, pieceColor) {
+      // Rook can move any number of squares horizontally or vertically
+      return rowFrom === rowTo || colFrom === colTo;
+    }
+
+    function isLegalBishopMove(rowFrom, colFrom, rowTo, colTo, pieceColor) {
+      const rowDiff = Math.abs(rowTo - rowFrom);
+      const colDiff = Math.abs(colTo - colFrom);
+
+      // Bishop can move any number of squares diagonally
+      return rowDiff === colDiff;
+    }
+
+    function isLegalKnightMove(rowFrom, colFrom, rowTo, colTo, pieceColor) {
+      const rowDiff = Math.abs(rowTo - rowFrom);
+      const colDiff = Math.abs(colTo - colFrom);
+
+      // Knight can move in an L-shape: 2 squares in one direction and 1 square in the other
+      return (rowDiff === 2 && colDiff === 1) || (rowDiff === 1 && colDiff === 2);
+    }
+
+    function isLegalPawnMove(rowFrom, colFrom, rowTo, colTo, pieceColor) {
+      const forwardDirection = pieceColor === 'white' ? -1 : 1;
+      const startingRow = pieceColor === 'white' ? 6 : 1;
+
+      const rowDiff = rowTo - rowFrom;
+      const colDiff = Math.abs(colTo - colFrom);
+
+      // Pawn can move one square forward, two squares forward from the starting position, or capture diagonally
+      if (rowDiff === forwardDirection && colDiff === 0 && chessboard[rowTo][colTo] === '') {
+        return true;
+      } else if (
+        rowDiff === 2 * forwardDirection && rowFrom === startingRow && colDiff === 0 && chessboard[rowTo][colTo] === ''
+      ) {
+        return true;
+      } else if (rowDiff === forwardDirection && colDiff === 1 && chessboard[rowTo][colTo] !== '') {
+        return true;
+      }
+
+      return false;
+    }
+
+    // Check and checkmate logic
+    function checkAndCheckmate() {
+      const whiteKing = findKing('white');
+      const blackKing = findKing('black');
+
+      if (isInCheck(whiteKing.row, whiteKing.col, 'white')) {
+        if (isCheckmate('white')) {
+          alert('Checkmate! Black wins!');
+          resetBoard();
+        } else {
+          alert('White is in check!');
+        }
+      } else if (isInCheck(blackKing.row, blackKing.col, 'black')) {
+        if (isCheckmate('black')) {
+          alert('Checkmate! White wins!');
+          resetBoard();
+        } else {
+          alert('Black is in check!');
+        }
+      }
+    }
+
+    function findKing(color) {
+      for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 8; col++) {
+          if (chessboard[row][col].toLowerCase() === 'k' && (chessboard[row][col] === chessboard[row][col].toUpperCase()) === (color === 'white')) {
+            return { row, col };
+          }
+        }
+      }
+    }
+
+    function isInCheck(row, col, color) {
+      const enemyColor = color === 'white' ? 'black' : 'white';
+      return isEnemyAttacking(row, col, enemyColor);
+    }
+
+    function isCheckmate(color) {
+      for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 8; col++) {
+          if (chessboard[row][col] === '' || (chessboard[row][col] === chessboard[row][col].toUpperCase()) === (color === 'white')) {
+            continue;
+          }
+
+          for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 8; j++) {
+              if (isLegalMove(row, col, i, j, chessboard[row][col])) {
+                const prevPiece = chessboard[i][j];
+                chessboard[i][j] = chessboard[row][col];
+                chessboard[row][col] = '';
+                if (!isInCheck(findKing(color).row, findKing(color).col, color)) {
+                  chessboard[row][col] = chessboard[i][j];
+                  chessboard[i][j] = prevPiece;
+                  return false;
+                }
+                chessboard[row][col] = chessboard[i][j];
+                chessboard[i][j] = prevPiece;
+              }
+            }
+          }
+        }
+      }
+
+      return true;
+    }
+
+    // Reset the board
+    function resetBoard() {
+      chessboard.forEach((row, rowIndex) => {
+        row.forEach((_, colIndex) => {
+          chessboard[rowIndex][colIndex] = '';
+        });
+      });
+      chessboard[0] = ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'];
+      chessboard[1] = ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'];
+      chessboard[6] = ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'];
+      chessboard[7] = ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'];
+      renderBoard();
+    }
+
+  </script>
+</body>
+</html>
