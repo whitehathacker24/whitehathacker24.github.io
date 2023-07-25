@@ -40,20 +40,19 @@
       // Retrieve existing Q&A history from localStorage
       const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
 
-      // If the answer is not provided, let the bot generate a response
+      // If the answer is not provided, set it to an empty string
       if (!answer) {
-        answer = getAnswerFromHistory(question, qaHistory);
-        if (!answer) {
-          answer = generateBotResponse(question);
-          document.getElementById('answer').value = answer;
-        }
+        answer = '';
       }
 
-      // Store the lowercase version of the question in the Q&A history
-      qaHistory.push({ question: question, answer });
+      // If both question and answer are provided, add the Q&A to history
+      if (question && answer) {
+        // Store the lowercase version of the question in the Q&A history
+        qaHistory.push({ question: question, answer });
 
-      // Store the updated Q&A history in localStorage
-      localStorage.setItem('qaHistory', JSON.stringify(qaHistory));
+        // Store the updated Q&A history in localStorage
+        localStorage.setItem('qaHistory', JSON.stringify(qaHistory));
+      }
 
       // Reset the form
       document.getElementById('qaForm').reset();
