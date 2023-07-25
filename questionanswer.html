@@ -1,1 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Q&A Form</title>
+</head>
+<body>
+  <h1>Q&A Form</h1>
+  <form id="qaForm">
+    <label for="question">Question:</label>
+    <input type="text" id="question" required>
+    <br>
+    <label for="answer">Answer:</label>
+    <input type="text" id="answer">
+    <br>
+    <button type="submit">Submit</button>
+  </form>
+  <hr>
+  <h2>Q&A History</h2>
+  <div id="history"></div>
+
+  <h2>Bot's Answer</h2>
+  <div id="botAnswer"></div>
+
+  <script>
+    // Function to handle form submission
+    function handleSubmit(event) {
+      event.preventDefault();
+      const question = document.getElementById('question').value;
+      let answer = document.getElementById('answer').value;
+
+      // Retrieve existing Q&A history from localStorage
+      const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
+
+      // If the answer is not provided, let the bot generate a response
+      if (!answer) {
+        answer = generateBotResponse(question);
+        document.getElementById('answer').value = answer;
+      }
+
+      // Add the new Q&A to the history
+      qaHistory.push({ question, answer });
+
+      // Store the updated Q&A history in localStorage
+      localStorage.setItem('qaHistory', JSON.stringify(qaHistory));
+
+      // Reset the form
+      document.getElementById('qaForm').reset();
+
+      // Update the history display
+      updateHistory();
+    }
+
+    // Function to generate bot response
+    function generateBotResponse(question) {
+      // You can customize the bot's response generation here.
+      // For simplicity, let's just return a static response for demonstration purposes.
+      return "Bot-generated response for: " + question;
+    }
+
+    // Function to display Q&A history
+    function updateHistory() {
+      const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
+      const historyDiv = document.getElementById('history');
+
+      // Clear previous history
+      historyDiv.innerHTML = '';
+
+      // Display the Q&A history
+      qaHistory.forEach((qa, index) => {
+        const question = qa.question;
+        const answer = qa.answer;
+
+        const qaEntry = document.createElement('p');
+        qaEntry.textContent = `${index + 1}. Question: ${question} - Answer: ${answer}`;
+        historyDiv.appendChild(qaEntry);
+      });
+    }
+
+    // Function to handle bot answering
+    function handleBotAnswer() {
+      const question = document.getElementById('question').value;
+      const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
+      const botAnswerDiv = document.getElementById('botAnswer');
+
+      // Search for the question in the Q&A history
+      const foundQA = qaHistory.find((qa) => qa.question.toLowerCase() === question.toLowerCase());
+
+      if (foundQA) {
+        botAnswerDiv.textContent = `Bot's Answer: ${foundQA.answer}`;
+      } else {
+        botAnswerDiv.textContent = `Bot's Answer: Question not found in history.`;
+      }
+    }
+
+    // Attach the form submission handler
+    const form = document.getElementById('qaForm');
+    form.addEventListener('submit', handleSubmit);
+
+    // Display initial history on page load
+    updateHistory();
+
+    // Display bot's answer on question input change
+    const questionInput = document.getElementById('question');
+    questionInput.addEventListener('input', handleBotAnswer);
+  </script>
+</body>
+</html>
 
