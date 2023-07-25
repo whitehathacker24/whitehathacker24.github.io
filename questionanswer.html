@@ -21,68 +21,33 @@
   <h2>Bot's Answer</h2>
   <div id="botAnswer"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@vitalets/google-translate-api"></script>
   <script>
     // Function to handle form submission
-    async function handleSubmit(event) {
+    function handleSubmit(event) {
       event.preventDefault();
-      let question = document.getElementById('question').value;
+      const question = document.getElementById('question').value.toLowerCase();
       let answer = document.getElementById('answer').value;
-
-      // Detect the language of the question
-      const detectedLanguage = await detectLanguage(question);
-
-      // Translate the question to English if it's not already in English
-      if (detectedLanguage !== 'en') {
-        question = await translateToEnglish(question, detectedLanguage);
-      }
 
       // Retrieve existing Q&A history from localStorage
       const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
 
-      // If the answer is not provided, set it to an empty string
+      // If the answer is not provided, let the bot generate a response
       if (!answer) {
-        answer = '';
+        answer = generateBotResponse(question);
+        document.getElementById('answer').value = answer;
       }
 
-      // If both question and answer are provided, add the Q&A to history
-      if (question && answer) {
-        // Store the lowercase version of the question in the Q&A history
-        qaHistory.push({ question: question, answer });
+      // Store the lowercase version of the question in the Q&A history
+      qaHistory.push({ question: question, answer });
 
-        // Store the updated Q&A history in localStorage
-        localStorage.setItem('qaHistory', JSON.stringify(qaHistory));
-      }
+      // Store the updated Q&A history in localStorage
+      localStorage.setItem('qaHistory', JSON.stringify(qaHistory));
 
       // Reset the form
       document.getElementById('qaForm').reset();
 
       // Update the history display
       updateHistory();
-    }
-
-    // Function to detect the language of the text
-    async function detectLanguage(text) {
-      const res = await translate(text, { to: 'en' });
-      return res.from.language.iso;
-    }
-
-    // Function to translate text to English
-    async function translateToEnglish(text, sourceLanguage) {
-      const res = await translate(text, { from: sourceLanguage, to: 'en' });
-      return res.text;
-    }
-
-    // Function to search for an answer in the Q&A history
-    function getAnswerFromHistory(question, qaHistory) {
-      const englishQuestion = question.toLowerCase();
-      const foundQA = qaHistory.find((qa) => qa.question.toLowerCase() === englishQuestion);
-
-      if (foundQA) {
-        return foundQA.answer;
-      }
-
-      return null;
     }
 
     // Function to generate bot response
