@@ -10,7 +10,7 @@
     <input type="text" id="question" required>
     <br>
     <label for="answer">Answer:</label>
-    <input type="text" id="answer" required>
+    <input type="text" id="answer">
     <br>
     <button type="submit">Submit</button>
   </form>
@@ -26,10 +26,16 @@
     function handleSubmit(event) {
       event.preventDefault();
       const question = document.getElementById('question').value;
-      const answer = document.getElementById('answer').value;
+      let answer = document.getElementById('answer').value;
 
       // Retrieve existing Q&A history from localStorage
       const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
+
+      // If the answer is not provided, let the bot generate a response
+      if (!answer) {
+        answer = generateBotResponse(question);
+        document.getElementById('answer').value = answer;
+      }
 
       // Add the new Q&A to the history
       qaHistory.push({ question, answer });
@@ -42,6 +48,13 @@
 
       // Update the history display
       updateHistory();
+    }
+
+    // Function to generate bot response
+    function generateBotResponse(question) {
+      // You can customize the bot's response generation here.
+      // For simplicity, let's just return a static response for demonstration purposes.
+      return "Bot-generated response for: " + question;
     }
 
     // Function to display Q&A history
