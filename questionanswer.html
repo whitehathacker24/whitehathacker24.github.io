@@ -25,7 +25,7 @@
     // Function to handle form submission
     function handleSubmit(event) {
       event.preventDefault();
-      const question = document.getElementById('question').value;
+      const question = document.getElementById('question').value.toLowerCase();
       let answer = document.getElementById('answer').value;
 
       // Retrieve existing Q&A history from localStorage
@@ -37,8 +37,8 @@
         document.getElementById('answer').value = answer;
       }
 
-      // Add the new Q&A to the history
-      qaHistory.push({ question, answer });
+      // Store the lowercase version of the question in the Q&A history
+      qaHistory.push({ question: question, answer });
 
       // Store the updated Q&A history in localStorage
       localStorage.setItem('qaHistory', JSON.stringify(qaHistory));
@@ -57,6 +57,30 @@
       return "Bot-generated response for: " + question;
     }
 
+    // Function to handle bot answering
+    function handleBotAnswer() {
+      const question = document.getElementById('question').value.toLowerCase();
+      const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
+      const botAnswerDiv = document.getElementById('botAnswer');
+
+      // Search for the lowercase version of the question in the Q&A history
+      const foundQA = qaHistory.find((qa) => qa.question === question);
+
+      if (foundQA) {
+        botAnswerDiv.textContent = `Bot's Answer: ${foundQA.answer}`;
+      } else {
+        botAnswerDiv.textContent = `Bot's Answer: Question not found in history.`;
+      }
+    }
+
+    // Function to handle delete button click
+    function handleDelete(index) {
+      const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
+      qaHistory.splice(index, 1); // Remove the entry at the specified index
+      localStorage.setItem('qaHistory', JSON.stringify(qaHistory));
+      updateHistory();
+    }
+
     // Function to display Q&A history
     function updateHistory() {
       const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
@@ -70,26 +94,14 @@
         const question = qa.question;
         const answer = qa.answer;
 
-        const qaEntry = document.createElement('p');
+        const qaEntry = document.createElement('div');
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.addEventListener('click', () => handleDelete(index));
         qaEntry.textContent = `${index + 1}. Question: ${question} - Answer: ${answer}`;
+        qaEntry.appendChild(deleteButton);
         historyDiv.appendChild(qaEntry);
       });
-    }
-
-    // Function to handle bot answering
-    function handleBotAnswer() {
-      const question = document.getElementById('question').value;
-      const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
-      const botAnswerDiv = document.getElementById('botAnswer');
-
-      // Search for the question in the Q&A history
-      const foundQA = qaHistory.find((qa) => qa.question.toLowerCase() === question.toLowerCase());
-
-      if (foundQA) {
-        botAnswerDiv.textContent = `Bot's Answer: ${foundQA.answer}`;
-      } else {
-        botAnswerDiv.textContent = `Bot's Answer: Question not found in history.`;
-      }
     }
 
     // Attach the form submission handler
@@ -105,4 +117,3 @@
   </script>
 </body>
 </html>
-
