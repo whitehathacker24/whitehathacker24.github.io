@@ -12,15 +12,6 @@
     <label for="answer">Answer:</label>
     <input type="text" id="answer">
     <br>
-    <label for="code">Code:</label>
-    <input type="text" id="code">
-    <select id="codingLanguages">
-      <option value="javascript">JavaScript</option>
-      <option value="python">Python</option>
-      <option value="java">Java</option>
-      <!-- Add more coding languages as needed -->
-    </select>
-    <br>
     <button type="submit">Submit</button>
   </form>
   <hr>
@@ -30,17 +21,12 @@
   <h2>Bot's Answer</h2>
   <div id="botAnswer"></div>
 
-  <h2>Generated Script</h2>
-  <div id="generatedScript"></div>
-
   <script>
     // Function to handle form submission
     function handleSubmit(event) {
       event.preventDefault();
       const question = document.getElementById('question').value.toLowerCase();
       let answer = document.getElementById('answer').value;
-      const code = document.getElementById('code').value;
-      const selectedLanguage = document.getElementById('codingLanguages').value;
 
       // Retrieve existing Q&A history from localStorage
       const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
@@ -51,8 +37,8 @@
         document.getElementById('answer').value = answer;
       }
 
-      // Store the lowercase version of the question and the answer in the Q&A history
-      qaHistory.push({ question: question, answer, code, language: selectedLanguage });
+      // Store the lowercase version of the question in the Q&A history
+      qaHistory.push({ question: question, answer });
 
       // Store the updated Q&A history in localStorage
       localStorage.setItem('qaHistory', JSON.stringify(qaHistory));
@@ -76,21 +62,14 @@
       const question = document.getElementById('question').value.toLowerCase();
       const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
       const botAnswerDiv = document.getElementById('botAnswer');
-      const generatedScriptDiv = document.getElementById('generatedScript');
 
       // Search for the lowercase version of the question in the Q&A history
       const foundQA = qaHistory.find((qa) => qa.question === question);
 
       if (foundQA) {
         botAnswerDiv.textContent = `Bot's Answer: ${foundQA.answer}`;
-        if (foundQA.code && foundQA.language) {
-          generatedScriptDiv.textContent = `Generated Script (${foundQA.language}): ${foundQA.code}`;
-        } else {
-          generatedScriptDiv.textContent = '';
-        }
       } else {
         botAnswerDiv.textContent = `Bot's Answer: Question not found in history.`;
-        generatedScriptDiv.textContent = '';
       }
     }
 
@@ -114,17 +93,12 @@
       qaHistory.forEach((qa, index) => {
         const question = qa.question;
         const answer = qa.answer;
-        const code = qa.code;
-        const language = qa.language;
 
         const qaEntry = document.createElement('div');
         const deleteButton = document.createElement('button');
         deleteButton.textContent = 'Delete';
         deleteButton.addEventListener('click', () => handleDelete(index));
         qaEntry.textContent = `${index + 1}. Question: ${question} - Answer: ${answer}`;
-        if (code && language) {
-          qaEntry.textContent += ` - Code (${language}): ${code}`;
-        }
         qaEntry.appendChild(deleteButton);
         historyDiv.appendChild(qaEntry);
       });
