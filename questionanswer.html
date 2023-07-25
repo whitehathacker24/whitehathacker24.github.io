@@ -42,8 +42,11 @@
 
       // If the answer is not provided, let the bot generate a response
       if (!answer) {
-        answer = generateBotResponse(question);
-        document.getElementById('answer').value = answer;
+        answer = getAnswerFromHistory(question, qaHistory);
+        if (!answer) {
+          answer = generateBotResponse(question);
+          document.getElementById('answer').value = answer;
+        }
       }
 
       // Store the lowercase version of the question in the Q&A history
@@ -69,6 +72,18 @@
     async function translateToEnglish(text, sourceLanguage) {
       const res = await translate(text, { from: sourceLanguage, to: 'en' });
       return res.text;
+    }
+
+    // Function to search for an answer in the Q&A history
+    function getAnswerFromHistory(question, qaHistory) {
+      const englishQuestion = question.toLowerCase();
+      const foundQA = qaHistory.find((qa) => qa.question.toLowerCase() === englishQuestion);
+
+      if (foundQA) {
+        return foundQA.answer;
+      }
+
+      return null;
     }
 
     // Function to generate bot response
