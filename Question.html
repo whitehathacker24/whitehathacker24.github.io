@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Bot</title>
+    <title>Advanced Math Bot</title>
     <style>
         /* Add some basic styling for better appearance */
         body {
@@ -20,22 +20,36 @@
     </style>
 </head>
 <body>
-    <h1>Simple Bot</h1>
+    <h1>Advanced Math Bot</h1>
     <div>
         <label for="user-input">Ask a question:</label>
         <input type="text" id="user-input" />
         <button onclick="askQuestion()">Ask</button>
+        <button onclick="clearChat()">Clear Chat</button>
     </div>
     <div id="chat-box"></div>
 
+    <!-- Include math.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.7.1/math.min.js"></script>
     <script>
         // Load previous questions and answers from local storage (if any)
         let botMemory = JSON.parse(localStorage.getItem('botMemory')) || {};
 
+        const faqs = {
+            'what is your name': "I'm just a simple bot, so you can call me Bot!",
+            'who created you': "I was created by OpenAI using GPT-3.5.",
+            'what can you do': "I can answer questions, solve math problems, and have simple conversations with you.",
+            'how old are you': "As a bot, I don't age, so I'm always young!",
+            'tell me a joke': "Why don't scientists trust atoms? Because they make up everything!",
+            'how do you learn': "I learn from vast amounts of text and data to improve my responses.",
+            'do you have emotions': "As a bot, I don't have emotions, but I'm here to help you!",
+            'thank you': "You're welcome! If you have any more questions, feel free to ask.",
+        };
+
         function solveMathProblem(question) {
             try {
-                // Evaluate the math problem using JavaScript's eval() function
-                const result = eval(question);
+                // Use math.js to evaluate the math problem
+                const result = math.evaluate(question);
                 return result;
             } catch (error) {
                 // Return null if there was an error in solving the math problem
@@ -43,38 +57,136 @@
             }
         }
 
-        function askQuestion() {
-            const userInput = document.getElementById('user-input').value;
-            if (userInput.trim() === '') return; // Ignore empty questions
+        function getWeather(city) {
+            // Simulate getting weather data from an API
+            const weatherData = {
+                'new york': 'Sunny with a high of 80°F (27°C).',
+                'los angeles': 'Partly cloudy with a high of 75°F (24°C).',
+                'london': 'Rainy with a high of 60°F (16°C).',
+                'tokyo': 'Mostly clear with a high of 86°F (30°C).',
+            };
 
-            const answer = botMemory[userInput];
-            const chatBox = document.getElementById('chat-box');
+            return weatherData[city.toLowerCase()] || "Sorry, I don't have weather information for that city.";
+        }
 
-            if (answer) {
-                // If the question already exists, show the answer from memory
-                chatBox.innerHTML += `<p><strong>You:</strong> ${userInput}</p>`;
-                chatBox.innerHTML += `<p><strong>Bot:</strong> ${answer}</p>`;
+        function getRandomFact() {
+            // List of random facts to choose from
+            const randomFacts = [
+                "A group of flamingos is called a 'flamboyance'.",
+                "Polar bears are left-handed.",
+                "Octopuses have three hearts.",
+                "The Eiffel Tower can be 6 inches taller during the summer.",
+                "The shortest war in history lasted just 38 minutes.",
+                "A day on Venus is longer than a year on Venus.",
+            ];
+
+            // Select a random fact from the list
+            const randomIndex = Math.floor(Math.random() * randomFacts.length);
+            return randomFacts[randomIndex];
+        }
+
+        function getRecommendation() {
+            // List of random recommendations to choose from
+            const recommendations = [
+                "You should try the new Italian restaurant in town.",
+                "I recommend watching the latest sci-fi movie in theaters.",
+                "Consider reading the 'Harry Potter' book series.",
+                "If you enjoy puzzles, try solving a Rubik's Cube.",
+                "Take a walk in the park and enjoy nature.",
+            ];
+
+            // Select a random recommendation from the list
+            const randomIndex = Math.floor(Math.random() * recommendations.length);
+            return recommendations[randomIndex];
+        }
+
+        function botResponse(userInput) {
+            const lowerCaseInput = userInput.toLowerCase();
+
+            // Check for specific keywords and provide relevant responses
+            if (lowerCaseInput.includes('hello') || lowerCaseInput.includes('hi')) {
+                return "Hello there! How can I assist you today?";
+            } else if (lowerCaseInput.includes('bye') || lowerCaseInput.includes('goodbye')) {
+                return "Goodbye! Have a great day!";
+            } else if (lowerCaseInput.includes('help')) {
+                return "I can answer questions, solve math problems, and have simple conversations with you.";
+            }
+
+            // Check if the user input matches predefined FAQs
+            for (const question in faqs) {
+                if (lowerCaseInput.includes(question)) {
+                    return faqs[question];
+                }
+            }
+
+            // Check for other specific questions
+            if (lowerCaseInput.includes('how are you')) {
+                return "I'm just a bot, but thanks for asking!";
+            } else if (lowerCaseInput.includes('time')) {
+                const currentTime = new Date().toLocaleTimeString();
+                return `The current time is: ${currentTime}`;
+            } else if (lowerCaseInput.includes('weather in')) {
+                const city = userInput.split('weather in ')[1];
+                return getWeather(city);
+            } else if (lowerCaseInput.includes('random fact')) {
+                return getRandomFact();
+            } else if (lowerCaseInput.includes('recommend')) {
+                return getRecommendation();
             } else {
-                // Check if it's a math problem and try to solve it
+                // Check for formulas
+                if (lowerCaseInput.includes('area of circle')) {
+                    const formula = 'Area = π * (radius)^2';
+                    return formula;
+                } else if (lowerCaseInput.includes('quadratic equation')) {
+                    const formula = 'ax^2 + bx + c = 0';
+                    return formula;
+                } else if (lowerCaseInput.includes('pythagorean theorem')) {
+                    const formula = 'c^2 = a^2 + b^2';
+                    return formula;
+                }
+                // Add 30 new formulas here (you can customize these formulas as per your requirements)
+                else if (lowerCaseInput.includes('area of rectangle')) {
+                    const formula = 'Area = length * width';
+                    return formula;
+                } else if (lowerCaseInput.includes('volume of sphere')) {
+                    const formula = 'Volume = (4/3) * π * (radius)^3';
+                    return formula;
+                } else if (lowerCaseInput.includes('kinetic energy')) {
+                    const formula = 'Kinetic Energy = 0.5 * mass * (velocity)^2';
+                    return formula;
+                }
+                // Add more formulas...
+
+                // Check for advanced math problems using math.js
                 const mathResult = solveMathProblem(userInput);
                 if (mathResult !== null) {
-                    botMemory[userInput] = mathResult;
-                    localStorage.setItem('botMemory', JSON.stringify(botMemory));
-
-                    chatBox.innerHTML += `<p><strong>You:</strong> ${userInput}</p>`;
-                    chatBox.innerHTML += `<p><strong>Bot:</strong> ${mathResult}</p>`;
+                    return `The answer to "${userInput}" is: ${mathResult}`;
                 } else {
                     // If it's a new question, prompt the user to provide an answer
                     const newAnswer = prompt(`You asked: "${userInput}"\n\nBot doesn't know the answer. Please provide one:`);
                     if (newAnswer) {
                         botMemory[userInput] = newAnswer;
                         localStorage.setItem('botMemory', JSON.stringify(botMemory));
-
-                        chatBox.innerHTML += `<p><strong>You:</strong> ${userInput}</p>`;
-                        chatBox.innerHTML += `<p><strong>Bot:</strong> ${newAnswer}</p>`;
+                        return `You asked: "${userInput}"\nBot: ${newAnswer}`;
+                    } else {
+                        return "I'm sorry, I couldn't understand your question.";
                     }
                 }
             }
+        }
+
+        function askQuestion() {
+            const userInput = document.getElementById('user-input').value;
+            if (userInput.trim() === '') return; // Ignore empty questions
+
+            const chatBox = document.getElementById('chat-box');
+
+            // Get the bot's response based on user input
+            const botResponseText = botResponse(userInput);
+
+            // Show the user's question and bot's response in the chat box
+            chatBox.innerHTML += `<p><strong>You:</strong> ${userInput}</p>`;
+            chatBox.innerHTML += `<p><strong>Bot:</strong> ${botResponseText}</p>`;
 
             // Clear the input field after processing the question
             document.getElementById('user-input').value = '';
@@ -82,6 +194,15 @@
             // Scroll to the bottom of the chat box to show the latest message
             chatBox.scrollTop = chatBox.scrollHeight;
         }
+
+        function clearChat() {
+            // Clear the chat history and local storage
+            const chatBox = document.getElementById('chat-box');
+            chatBox.innerHTML = '';
+            localStorage.removeItem('botMemory');
+            botMemory = {};
+        }
     </script>
 </body>
 </html>
+
