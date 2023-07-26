@@ -162,7 +162,13 @@
                 return formulaResult;
             }
 
-            // Check for specific interactions (previously added functions)
+            // Check for previously answered questions
+            const previousAnswer = botMemory[userInput];
+            if (previousAnswer) {
+                return previousAnswer.answer;
+            }
+
+            // Check for specific interactions
 
             // Check for math word problems
             const wordProblemResult = solveMathWordProblem(userInput);
@@ -173,81 +179,112 @@
             }
 
             // Check for temperature conversion
-            const tempConversionResult = convertTemperature(userInput);
-            if (tempConversionResult !== null) {
-                return tempConversionResult;
+            const temperatureRegex = /(\d+(?:\.\d+)?)\s?(celsius|fahrenheit|kelvin)\s?to\s?(celsius|fahrenheit|kelvin)/i;
+            const temperatureMatch = userInput.match(temperatureRegex);
+            if (temperatureMatch) {
+                const temp = parseFloat(temperatureMatch[1]);
+                const fromUnit = temperatureMatch[2].toLowerCase();
+                const toUnit = temperatureMatch[3].toLowerCase();
+                const convertedTemp = convertTemperature(temp, fromUnit, toUnit);
+                if (convertedTemp !== null) {
+                    return `Converted temperature: ${convertedTemp.toFixed(2)} ${toUnit}`;
+                } else {
+                    return "Invalid temperature conversion.";
+                }
             }
 
             // Check for geometry calculations
-            if (userInput.includes('calculate rectangle area')) {
-                const dimensions = userInput.match(/\d+/g).map(Number);
-                if (dimensions.length === 2) {
-                    const area = calculateRectangleArea(dimensions[0], dimensions[1]);
-                    const response = `The area of the rectangle is: ${area}`;
-                    saveUserInputAndAnswer(userInput, response);
-                    return response;
+            const rectangleAreaRegex = /calculate rectangle area (\d+\.?\d*) (\d+\.?\d*)/i;
+            const circleAreaRegex = /calculate circle area (\d+\.?\d*)/i;
+            const rectangleAreaMatch = userInput.match(rectangleAreaRegex);
+            const circleAreaMatch = userInput.match(circleAreaRegex);
+
+            if (rectangleAreaMatch) {
+                const length = parseFloat(rectangleAreaMatch[1]);
+                const width = parseFloat(rectangleAreaMatch[2]);
+                if (!isNaN(length) && !isNaN(width)) {
+                    const area = calculateRectangleArea(length, width);
+                    return `The area of the rectangle is: ${area.toFixed(2)}`;
                 }
-            } else if (userInput.includes('calculate circle area')) {
-                const radius = userInput.match(/\d+/g).map(Number)[0];
-                const area = calculateCircleArea(radius);
-                const response = `The area of the circle is: ${area}`;
-                saveUserInputAndAnswer(userInput, response);
-                return response;
+            } else if (circleAreaMatch) {
+                const radius = parseFloat(circleAreaMatch[1]);
+                if (!isNaN(radius)) {
+                    const area = calculateCircleArea(radius);
+                    return `The area of the circle is: ${area.toFixed(2)}`;
+                }
             }
 
             // Check for algebra problems
-            if (userInput.includes('solve quadratic equation')) {
-                const coefficients = userInput.match(/-?\d+/g).map(Number);
-                if (coefficients.length === 3) {
-                    const solution = solveQuadraticEquation(coefficients[0], coefficients[1], coefficients[2]);
-                    const response = `The solution is: ${solution}`;
-                    saveUserInputAndAnswer(userInput, response);
-                    return response;
+            const quadraticEquationRegex = /solve quadratic equation (-?\d+\.?\d*) (-?\d+\.?\d*) (-?\d+\.?\d*)/i;
+            const quadraticEquationMatch = userInput.match(quadraticEquationRegex);
+
+            if (quadraticEquationMatch) {
+                const a = parseFloat(quadraticEquationMatch[1]);
+                const b = parseFloat(quadraticEquationMatch[2]);
+                const c = parseFloat(quadraticEquationMatch[3]);
+                if (!isNaN(a) && !isNaN(b) && !isNaN(c)) {
+                    const solution = solveQuadraticEquation(a, b, c);
+                    return solution;
                 }
             }
 
             // Check for trigonometry problems
-            if (userInput.includes('convert degrees to radians')) {
-                const degrees = userInput.match(/\d+/g).map(Number)[0];
-                const radians = convertDegreesToRadians(degrees);
-                const response = `The value in radians is: ${radians}`;
-                saveUserInputAndAnswer(userInput, response);
-                return response;
-            } else if (userInput.includes('convert radians to degrees')) {
-                const radians = userInput.match(/\d+(?:\.\d+)?/g).map(Number)[0];
-                const degrees = convertRadiansToDegrees(radians);
-                const response = `The value in degrees is: ${degrees}`;
-                saveUserInputAndAnswer(userInput, response);
-                return response;
-            } else if (userInput.includes('calculate right triangle hypotenuse')) {
-                const sides = userInput.match(/\d+/g).map(Number);
-                if (sides.length === 2) {
-                    const hypotenuse = calculateRightTriangleHypotenuse(sides[0], sides[1]);
-                    const response = `The length of the hypotenuse is: ${hypotenuse}`;
-                    saveUserInputAndAnswer(userInput, response);
-                    return response;
+            const degreesToRadiansRegex = /convert degrees to radians (\d+\.?\d*)/i;
+            const radiansToDegreesRegex = /convert radians to degrees (\d+\.?\d*)/i;
+            const rightTriangleHypotenuseRegex = /calculate right triangle hypotenuse (\d+\.?\d*) (\d+\.?\d*)/i;
+
+            const degreesToRadiansMatch = userInput.match(degreesToRadiansRegex);
+            const radiansToDegreesMatch = userInput.match(radiansToDegreesRegex);
+            const rightTriangleHypotenuseMatch = userInput.match(rightTriangleHypotenuseRegex);
+
+            if (degreesToRadiansMatch) {
+                const degrees = parseFloat(degreesToRadiansMatch[1]);
+                if (!isNaN(degrees)) {
+                    const radians = convertDegreesToRadians(degrees);
+                    return `The value in radians is: ${radians.toFixed(2)}`;
+                }
+            } else if (radiansToDegreesMatch) {
+                const radians = parseFloat(radiansToDegreesMatch[1]);
+                if (!isNaN(radians)) {
+                    const degrees = convertRadiansToDegrees(radians);
+                    return `The value in degrees is: ${degrees.toFixed(2)}`;
+                }
+            } else if (rightTriangleHypotenuseMatch) {
+                const base = parseFloat(rightTriangleHypotenuseMatch[1]);
+                const height = parseFloat(rightTriangleHypotenuseMatch[2]);
+                if (!isNaN(base) && !isNaN(height)) {
+                    const hypotenuse = calculateRightTriangleHypotenuse(base, height);
+                    return `The length of the hypotenuse is: ${hypotenuse.toFixed(2)}`;
                 }
             }
 
             // Check for statistics problems
-            if (userInput.includes('calculate mean')) {
-                const numbers = userInput.match(/-?\d+/g).map(Number);
-                const mean = calculateMean(numbers);
-                const response = `The mean of the numbers is: ${mean}`;
-                saveUserInputAndAnswer(userInput, response);
-                return response;
-            } else if (userInput.includes('calculate median')) {
-                const numbers = userInput.match(/-?\d+/g).map(Number);
-                const median = calculateMedian(numbers);
-                const response = `The median of the numbers is: ${median}`;
-                saveUserInputAndAnswer(userInput, response);
-                return response;
-            } else if (userInput.includes('calculate standard deviation')) {
-                const numbers = userInput.match(/-?\d+/g).map(Number);
-                const stDeviation = calculateStandardDeviation(numbers);
-                const response = `The standard deviation of the numbers is: ${stDeviation}`;
-                saveUserInputAndAnswer(userInput, response);
-                return response;
+            const calculateMeanRegex = /calculate mean (.+)/i;
+            const calculateMedianRegex = /calculate median (.+)/i;
+            const calculateStandardDeviationRegex = /calculate standard deviation (.+)/i;
+
+            const calculateMeanMatch = userInput.match(calculateMeanRegex);
+            const calculateMedianMatch = userInput.match(calculateMedianRegex);
+            const calculateStandardDeviationMatch = userInput.match(calculateStandardDeviationRegex);
+
+            if (calculateMeanMatch) {
+                const numbers = userInput.match(/-?\d+\.?\d*/g).map(Number);
+                if (numbers.length > 0) {
+                    const mean = calculateMean(numbers);
+                    return `The mean of the numbers is: ${mean.toFixed(2)}`;
+                }
+            } else if (calculateMedianMatch) {
+                const numbers = userInput.match(/-?\d+\.?\d*/g).map(Number);
+                if (numbers.length > 0) {
+                    const median = calculateMedian(numbers);
+                    return `The median of the numbers is: ${median.toFixed(2)}`;
+                }
+            } else if (calculateStandardDeviationMatch) {
+                const numbers = userInput.match(/-?\d+\.?\d*/g).map(Number);
+                if (numbers.length > 0) {
+                    const stDeviation = calculateStandardDeviation(numbers);
+                    return `The standard deviation of the numbers is: ${stDeviation.toFixed(2)}`;
+                }
             }
 
             // If it's a new question, prompt the user to provide an answer
