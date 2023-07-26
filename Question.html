@@ -142,8 +142,8 @@
             }
         }
 
-        function saveUserInputAndAnswer(userInput, answer) {
-            botMemory[userInput] = answer;
+        function saveUserInputAndAnswer(userInput, botResponse) {
+            botMemory[userInput] = { question: userInput, answer: botResponse };
             localStorage.setItem('botMemory', JSON.stringify(botMemory));
         }
 
@@ -183,12 +183,16 @@
                 const dimensions = userInput.match(/\d+/g).map(Number);
                 if (dimensions.length === 2) {
                     const area = calculateRectangleArea(dimensions[0], dimensions[1]);
-                    return `The area of the rectangle is: ${area}`;
+                    const response = `The area of the rectangle is: ${area}`;
+                    saveUserInputAndAnswer(userInput, response);
+                    return response;
                 }
             } else if (userInput.includes('calculate circle area')) {
                 const radius = userInput.match(/\d+/g).map(Number)[0];
                 const area = calculateCircleArea(radius);
-                return `The area of the circle is: ${area}`;
+                const response = `The area of the circle is: ${area}`;
+                saveUserInputAndAnswer(userInput, response);
+                return response;
             }
 
             // Check for algebra problems
@@ -196,7 +200,9 @@
                 const coefficients = userInput.match(/-?\d+/g).map(Number);
                 if (coefficients.length === 3) {
                     const solution = solveQuadraticEquation(coefficients[0], coefficients[1], coefficients[2]);
-                    return solution;
+                    const response = `The solution is: ${solution}`;
+                    saveUserInputAndAnswer(userInput, response);
+                    return response;
                 }
             }
 
@@ -204,16 +210,22 @@
             if (userInput.includes('convert degrees to radians')) {
                 const degrees = userInput.match(/\d+/g).map(Number)[0];
                 const radians = convertDegreesToRadians(degrees);
-                return `The value in radians is: ${radians}`;
+                const response = `The value in radians is: ${radians}`;
+                saveUserInputAndAnswer(userInput, response);
+                return response;
             } else if (userInput.includes('convert radians to degrees')) {
                 const radians = userInput.match(/\d+(?:\.\d+)?/g).map(Number)[0];
                 const degrees = convertRadiansToDegrees(radians);
-                return `The value in degrees is: ${degrees}`;
+                const response = `The value in degrees is: ${degrees}`;
+                saveUserInputAndAnswer(userInput, response);
+                return response;
             } else if (userInput.includes('calculate right triangle hypotenuse')) {
                 const sides = userInput.match(/\d+/g).map(Number);
                 if (sides.length === 2) {
                     const hypotenuse = calculateRightTriangleHypotenuse(sides[0], sides[1]);
-                    return `The length of the hypotenuse is: ${hypotenuse}`;
+                    const response = `The length of the hypotenuse is: ${hypotenuse}`;
+                    saveUserInputAndAnswer(userInput, response);
+                    return response;
                 }
             }
 
@@ -221,15 +233,21 @@
             if (userInput.includes('calculate mean')) {
                 const numbers = userInput.match(/-?\d+/g).map(Number);
                 const mean = calculateMean(numbers);
-                return `The mean of the numbers is: ${mean}`;
+                const response = `The mean of the numbers is: ${mean}`;
+                saveUserInputAndAnswer(userInput, response);
+                return response;
             } else if (userInput.includes('calculate median')) {
                 const numbers = userInput.match(/-?\d+/g).map(Number);
                 const median = calculateMedian(numbers);
-                return `The median of the numbers is: ${median}`;
+                const response = `The median of the numbers is: ${median}`;
+                saveUserInputAndAnswer(userInput, response);
+                return response;
             } else if (userInput.includes('calculate standard deviation')) {
                 const numbers = userInput.match(/-?\d+/g).map(Number);
                 const stDeviation = calculateStandardDeviation(numbers);
-                return `The standard deviation of the numbers is: ${stDeviation}`;
+                const response = `The standard deviation of the numbers is: ${stDeviation}`;
+                saveUserInputAndAnswer(userInput, response);
+                return response;
             }
 
             // If it's a new question, prompt the user to provide an answer
