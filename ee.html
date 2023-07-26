@@ -6,7 +6,33 @@
         <button onclick="clearChat()">Clear Chat</button>
     </div>
 <script>
-function problem(){
-print("hello World");
-}
+ function saveUserInputAndAnswer(userInput, answer) {
+            botMemory[userInput] = answer;
+            localStorage.setItem('botMemory', JSON.stringify(botMemory));
+        }
+  function clearChat() {
+            const chatBox = document.getElementById('chat-box');
+            chatBox.innerHTML = '';
+            localStorage.removeItem('botMemory');
+            botMemory = {};
+        }
+ function problem() {
+            const userInput = document.getElementById('user-input').value;
+            if (userInput.trim() === '') return; // Ignore empty questions
+
+            const chatBox = document.getElementById('chat-box');
+
+            // Get the bot's response based on user input
+            const botResponseText = botResponse(userInput);
+
+            // Show the user's question and bot's response in the chat box
+            chatBox.innerHTML += `<p><strong>You:</strong> ${userInput}</p>`;
+            chatBox.innerHTML += `<p><strong>Bot:</strong> ${botResponseText}</p>`;
+
+            // Clear the input field after processing the question
+            document.getElementById('user-input').value = '';
+
+            // Scroll to the bottom of the chat box to show the latest message
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
 </script>
