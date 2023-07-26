@@ -339,38 +339,31 @@
             }
 
             // Check for trigonometry problems (previously added functions)
-            if (userInput.includes('calculate triangle angle')) {
+            if (userInput.includes('calculate angle of triangle')) {
                 const sides = userInput.match(/\d+/g).map(Number);
-                if (sides.length === 3) {
-                    const angle = calculateTriangleAngle(sides[0], sides[1], sides[2]);
-                    return angle;
-                }
-            } else if (userInput.includes('calculate sine law side')) {
+                const angle = calculateTriangleAngle(sides[0], sides[1], sides[2]);
+                return angle;
+            } else if (userInput.includes('calculate side using sine law')) {
                 const values = userInput.match(/\d+/g).map(Number);
-                if (values.length === 3) {
-                    const side = calculateSineLawSide(values[0], values[1], values[2]);
-                    return `The length of the side is: ${side}`;
-                }
-            } else if (userInput.includes('calculate cosine law side')) {
+                const side = calculateSineLawSide(values[0], values[1], values[2]);
+                return `The side length is approximately: ${side}`;
+            } else if (userInput.includes('calculate side using cosine law')) {
                 const values = userInput.match(/\d+/g).map(Number);
-                if (values.length === 3) {
-                    const side = calculateCosineLawSide(values[0], values[1], values[2]);
-                    return `The length of the side is: ${side}`;
-                }
+                const side = calculateCosineLawSide(values[0], values[1], values[2]);
+                return `The side length is approximately: ${side}`;
             }
 
             // Check for algebra problems (previously added functions)
             if (userInput.includes('solve linear equation')) {
-                const coefficients = userInput.match(/-?\d+/g).map(Number);
-                const constant = coefficients.pop(); // Assume the constant is provided as the last number
-                const solution = solveLinearEquation(coefficients, constant);
-                return solution;
+                const values = userInput.match(/-?\d+/g).map(Number);
+                const equationResult = solveLinearEquation(values.slice(0, -1), values[values.length - 1]);
+                return equationResult;
             } else if (userInput.includes('solve system of equations')) {
-                const lines = userInput.match(/\d+ [x-z]/g); // Support up to 3 variables (x, y, z)
-                const constants = userInput.match(/= \d+/g).map(str => parseInt(str.replace('= ', '')));
-                const matrix = lines.map(line => line.match(/-?\d+/g).map(Number));
-                const solution = solveSystemOfEquations(matrix, constants);
-                return solution;
+                const matrixValues = userInput.match(/-?\d+/g).map(Number);
+                const matrix = math.reshape(matrixValues, [matrixValues.length / 2, 2]);
+                const constants = matrixValues.slice(matrixValues.length / 2);
+                const systemResult = solveSystemOfEquations(matrix, constants);
+                return systemResult;
             }
 
             // Check for geometry problems (previously added functions)
@@ -380,49 +373,39 @@
                 return `The volume of the sphere is: ${volume}`;
             } else if (userInput.includes('calculate volume of cone')) {
                 const values = userInput.match(/\d+/g).map(Number);
-                if (values.length === 2) {
-                    const volume = calculateVolumeOfCone(values[0], values[1]);
-                    return `The volume of the cone is: ${volume}`;
-                }
+                const volume = calculateVolumeOfCone(values[0], values[1]);
+                return `The volume of the cone is: ${volume}`;
             }
 
-            // If it's a new question, prompt the user to provide an answer
-            const newAnswer = prompt(`You asked: "${userInput}"\n\nBot doesn't know the answer. Please provide one:`);
-            if (newAnswer) {
-                saveUserInputAndAnswer(userInput, newAnswer);
-                return `You asked: "${userInput}"\nBot: ${newAnswer}`;
-            } else {
-                return "I'm sorry, I couldn't understand your question.";
-            }
+            // If no specific response is found, reply with a default message
+            const defaultResponse = "I'm sorry, I couldn't understand your question. Please try again.";
+            saveUserInputAndAnswer(userInput, defaultResponse);
+            return defaultResponse;
         }
 
-        function saveUserInputAndAnswer(userInput, answer) {
-            botMemory[userInput] = answer;
+        function saveUserInputAndAnswer(userInput, botResponse) {
+            // Save the user input and bot's answer in botMemory (a dictionary) to remember previous interactions
+            botMemory[userInput] = botResponse;
             localStorage.setItem('botMemory', JSON.stringify(botMemory));
         }
 
         function askQuestion() {
             const userInput = document.getElementById('user-input').value;
-            if (userInput.trim() === '') return; // Ignore empty questions
-
             const chatBox = document.getElementById('chat-box');
-
-            // Get the bot's response based on user input
-            const botResponseText = botResponse(userInput);
-
-            // Show the user's question and bot's response in the chat box
-            chatBox.innerHTML += `<p><strong>You:</strong> ${userInput}</p>`;
-            chatBox.innerHTML += `<p><strong>Bot:</strong> ${botResponseText}</p>`;
-
-            // Clear the input field after processing the question
-            document.getElementById('user-input').value = '';
-
-            // Scroll to the bottom of the chat box to show the latest message
+            const userMessage = document.createElement('div');
+            userMessage.textContent = `You: ${userInput}`;
+            const botMessage = document.createElement('div');
+            botMessage.textContent = `Bot: ${botResponse(userInput)}`;
+            chatBox.appendChild(userMessage);
+            chatBox.appendChild(botMessage);
+            // Scroll to the bottom of the chat box to show the latest messages
             chatBox.scrollTop = chatBox.scrollHeight;
+            // Clear the user input field
+            document.getElementById('user-input').value = '';
         }
 
         function clearChat() {
-            // Clear the chat history and local storage
+            // Clear the chat box and botMemory
             const chatBox = document.getElementById('chat-box');
             chatBox.innerHTML = '';
             localStorage.removeItem('botMemory');
