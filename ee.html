@@ -1,38 +1,58 @@
 <!DOCTYPE html>
- <div>
-        <label for="user-input">Ask a question:</label>
-        <input type="text" id="user-input" />
-        <button onclick="problem()">Ask</button>
-        <button onclick="clearChat()">Clear Chat</button>
-    </div>
+<html>
+<head>
+  <title>Q&A Form</title>
+</head>
+<body>
+  <h1>Q&A Form</h1>
+  <form id="qaForm">
+    <label for="question">Question:</label>
+    <input type="text" id="question" required>
+    <br>
+    <label for="answer">Answer:</label>
+    <input type="text" id="answer">
+    <br>
+    <button type="submit">Submit</button>
+  </form>
+  <hr>
+  <h2>Q&A History</h2>
+  <div id="history"></div>
+
+  <h2>Bot's Answer</h2>
+  <div id="botAnswer"></div>
 <script>
- function saveUserInputAndAnswer(userInput, answer) {
-            botMemory[userInput] = answer;
-            localStorage.setItem('botMemory', JSON.stringify(botMemory));
-        }
-  function clearChat() {
-            const chatBox = document.getElementById('chat-box');
-            chatBox.innerHTML = '';
-            localStorage.removeItem('botMemory');
-            botMemory = {};
-        }
- function problem() {
-            const userInput = document.getElementById('user-input').value;
-            if (userInput.trim() === '') return; // Ignore empty questions
+ //handles submit event converting letters into lowercase:D//
+ function handleSubmit(event) {
+      event.preventDefault();
+      const question = document.getElementById('question').value.toLowerCase();
+      let answer = document.getElementById('answer').value;
+       
+  // Retrieve existing Q&A history from localStorage
+      const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
+   qaHistory.push({ question: question, answer });
 
-            const chatBox = document.getElementById('chat-box');
+      // Store the updated Q&A history in localStorage
+      localStorage.setItem('qaHistory', JSON.stringify(qaHistory));
+  // Function to generate bot response
+    function generateBotResponse(question) {
+      // You can customize the bot's response generation here.
+      // For simplicity, let's just return a static response for demonstration purposes.
+      return "Bot-generated response for: " + question;
+    }
 
-            // Get the bot's response based on user input
-            const botResponseText = botResponse(userInput);
+    // Function to handle bot answering
+    function handleBotAnswer() {
+      const question = document.getElementById('question').value.toLowerCase();
+      const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
+      const botAnswerDiv = document.getElementById('botAnswer');
 
-            // Show the user's question and bot's response in the chat box
-            chatBox.innerHTML += `<p><strong>You:</strong> ${userInput}</p>`;
-            chatBox.innerHTML += `<p><strong>Bot:</strong> ${botResponseText}</p>`;
+      // Search for the lowercase version of the question in the Q&A history
+      const foundQA = qaHistory.find((qa) => qa.question === question);
 
-            // Clear the input field after processing the question
-            document.getElementById('user-input').value = '';
-
-            // Scroll to the bottom of the chat box to show the latest message
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
+      if (foundQA) {
+        botAnswerDiv.textContent = `Bot's Answer: ${foundQA.answer}`;
+      } else {
+        botAnswerDiv.textContent = `Bot's Answer: Question not found in history.`;
+      }
+    }
 </script>
