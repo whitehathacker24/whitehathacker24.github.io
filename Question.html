@@ -35,30 +35,130 @@
         // Load previous questions and answers from local storage (if any)
         let botMemory = JSON.parse(localStorage.getItem('botMemory')) || {};
 
-        // Function to save user input and bot's answer in local storage
-        function saveUserInputAndAnswer(userInput, answer) {
-            botMemory[userInput] = answer;
-            localStorage.setItem('botMemory', JSON.stringify(botMemory));
-        }
-
-        // Function to directly evaluate math expressions using math.js
-        function solveMathExpression(expression) {
+        function solveAdvancedMathProblem(userInput) {
+            // Use math.js to evaluate the advanced math problem
             try {
-                const result = math.evaluate(expression);
+                const result = math.evaluate(userInput);
                 return result;
             } catch (error) {
                 return null;
             }
         }
 
-        // Function to handle math word problems
+        function getFormula(userInput) {
+            // Check if the user is asking for a specific formula
+            const formulaName = userInput.replace('formula for', '').trim();
+            const formula = formulas[formulaName.toLowerCase()];
+            return formula ? formula : null;
+        }
+
+        // Additional formulas
+        const formulas = {
+            'area of ellipse': 'Area = π * a * b',
+            'volume of sphere': 'Volume = (4/3) * π * r^3',
+            'surface area of torus': 'Surface Area = 4 * π^2 * R * r',
+            // Add more formulas here
+            // ...
+        };
+
+        // Additional geometry functions
+        function calculateRectangleArea(length, width) {
+            return length * width;
+        }
+
+        function calculateCircleArea(radius) {
+            return Math.PI * radius * radius;
+        }
+
+        function calculateTriangleArea(base, height) {
+            return (base * height) / 2;
+        }
+
+        function calculateVolumeOfCylinder(radius, height) {
+            return Math.PI * radius * radius * height;
+        }
+
+        // Additional algebra functions
+        function solveQuadraticEquation(a, b, c) {
+            const discriminant = b * b - 4 * a * c;
+            if (discriminant < 0) {
+                return "The quadratic equation has no real roots.";
+            } else if (discriminant === 0) {
+                const root = -b / (2 * a);
+                return `The quadratic equation has a single real root: x = ${root}`;
+            } else {
+                const root1 = (-b + Math.sqrt(discriminant)) / (2 * a);
+                const root2 = (-b - Math.sqrt(discriminant)) / (2 * a);
+                return `The quadratic equation has two real roots: x₁ = ${root1}, x₂ = ${root2}`;
+            }
+        }
+
+        // Additional trigonometry functions
+        function convertDegreesToRadians(degrees) {
+            return degrees * (Math.PI / 180);
+        }
+
+        function convertRadiansToDegrees(radians) {
+            return radians * (180 / Math.PI);
+        }
+
+        function calculateRightTriangleHypotenuse(base, height) {
+            return Math.sqrt(base * base + height * height);
+        }
+
+        // Additional statistics functions
+        function calculateMean(numbers) {
+            return numbers.reduce((sum, num) => sum + num, 0) / numbers.length;
+        }
+
+        function calculateMedian(numbers) {
+            const sortedNumbers = numbers.slice().sort((a, b) => a - b);
+            const middle = Math.floor(sortedNumbers.length / 2);
+            if (sortedNumbers.length % 2 === 0) {
+                return (sortedNumbers[middle - 1] + sortedNumbers[middle]) / 2;
+            } else {
+                return sortedNumbers[middle];
+            }
+        }
+
+        function calculateStandardDeviation(numbers) {
+            const mean = calculateMean(numbers);
+            const squaredDifferences = numbers.map(num => (num - mean) * (num - mean));
+            const variance = squaredDifferences.reduce((sum, num) => sum + num, 0) / numbers.length;
+            return Math.sqrt(variance);
+        }
+
+        // Additional calculus functions
+        function calculateDerivative(expression, variable) {
+            try {
+                const parsedExpression = math.parse(expression);
+                const derivative = math.derivative(parsedExpression, variable);
+                return derivative.toString();
+            } catch (error) {
+                return "Error: Unable to calculate the derivative.";
+            }
+        }
+
+        function calculateIntegral(expression, variable, lowerLimit, upperLimit) {
+            try {
+                const parsedExpression = math.parse(expression);
+                const integral = math.evaluate(parsedExpression, { x: upperLimit }) - math.evaluate(parsedExpression, { x: lowerLimit });
+                return `The area under the curve is: ${integral.toString()}`;
+            } catch (error) {
+                return "Error: Unable to calculate the integral.";
+            }
+        }
+
+        // Additional math word problems
         function solveMathWordProblem(problem) {
+            // Logic to solve math word problems
             const keywords = ['plus', 'add', 'sum', 'total', 'minus', 'subtract', 'difference', 'times', 'multiply', 'multiplied', 'product', 'divided', 'quotient', 'how many', 'how much'];
 
             for (const keyword of keywords) {
                 if (problem.includes(keyword)) {
                     try {
-                        const numbers = problem.match(/-?\d+(?:\.\d+)?/g).map(Number);
+                        // Extract numbers from the problem
+                        const numbers = problem.match(/\d+/g).map(Number);
                         const operation = problem.includes('plus') || problem.includes('add') || problem.includes('sum') || problem.includes('total') ? 'add' :
                             problem.includes('minus') || problem.includes('subtract') || problem.includes('difference') ? 'subtract' :
                             problem.includes('times') || problem.includes('multiply') || problem.includes('multiplied') ? 'multiply' :
@@ -81,199 +181,240 @@
             return null;
         }
 
-        // Function to handle temperature conversions
-        function convertTemperature(userInput) {
-            const keywords = ['celsius', 'fahrenheit', 'kelvin'];
+        // Additional temperature conversion functions
+        function convertTemperature(temp, fromUnit, toUnit) {
+            // Logic to convert temperature between Celsius, Fahrenheit, and Kelvin
+            if (fromUnit === 'celsius' && toUnit === 'fahrenheit') {
+                return (temp * 9 / 5) + 32;
+            } else if (fromUnit === 'celsius' && toUnit === 'kelvin') {
+                return temp + 273.15;
+            } else if (fromUnit === 'fahrenheit' && toUnit === 'celsius') {
+                return (temp - 32) * 5 / 9;
+            } else if (fromUnit === 'fahrenheit' && toUnit === 'kelvin') {
+                return (temp - 32) * 5 / 9 + 273.15;
+            } else if (fromUnit === 'kelvin' && toUnit === 'celsius') {
+                return temp - 273.15;
+            } else if (fromUnit === 'kelvin' && toUnit === 'fahrenheit') {
+                return (temp - 273.15) * 9 / 5 + 32;
+            } else {
+                return null;
+            }
+        }
 
-            for (const keyword of keywords) {
-                if (userInput.includes(keyword)) {
-                    try {
-                        const temp = parseFloat(userInput.match(/-?\d+(?:\.\d+)?/g)[0]);
-                        if (!isNaN(temp)) {
-                            if (userInput.includes('celsius') && userInput.includes('fahrenheit')) {
-                                return (temp * 9 / 5) + 32;
-                            } else if (userInput.includes('celsius') && userInput.includes('kelvin')) {
-                                return temp + 273.15;
-                            } else if (userInput.includes('fahrenheit') && userInput.includes('celsius')) {
-                                return (temp - 32) * 5 / 9;
-                            } else if (userInput.includes('fahrenheit') && userInput.includes('kelvin')) {
-                                return (temp - 32) * 5 / 9 + 273.15;
-                            } else if (userInput.includes('kelvin') && userInput.includes('celsius')) {
-                                return temp - 273.15;
-                            } else if (userInput.includes('kelvin') && userInput.includes('fahrenheit')) {
-                                return (temp - 273.15) * 9 / 5 + 32;
-                            }
-                        }
-                    } catch (error) {
-                        return null;
-                    }
+        // Additional functions for calculus
+        function calculateAreaUnderCurve(expression, variable, lowerLimit, upperLimit) {
+            try {
+                const parsedExpression = math.parse(expression);
+                const integral = math.evaluate(parsedExpression, { x: upperLimit }) - math.evaluate(parsedExpression, { x: lowerLimit });
+                return `The area under the curve is: ${integral.toString()}`;
+            } catch (error) {
+                return "Error: Unable to calculate the area under the curve.";
+            }
+        }
+
+        function calculateTangent(expression, variable, value) {
+            try {
+                const parsedExpression = math.parse(expression);
+                const derivative = math.derivative(parsedExpression, variable);
+                const slope = math.evaluate(derivative, { x: value });
+                return `The equation of the tangent line at x = ${value} is: y = ${slope} * (x - ${value}) + f(${value})`;
+            } catch (error) {
+                return "Error: Unable to calculate the tangent line.";
+            }
+        }
+
+        // Additional functions for statistics
+        function calculateVariance(numbers) {
+            const mean = calculateMean(numbers);
+            const squaredDifferences = numbers.map(num => (num - mean) * (num - mean));
+            return squaredDifferences.reduce((sum, num) => sum + num, 0) / numbers.length;
+        }
+
+        function calculateCoefficientOfVariation(numbers) {
+            const mean = calculateMean(numbers);
+            const stDeviation = calculateStandardDeviation(numbers);
+            return (stDeviation / mean) * 100;
+        }
+
+        // Additional functions for trigonometry
+        function calculateTriangleAngle(sideA, sideB, sideC) {
+            const angleRad = Math.acos((sideA * sideA + sideB * sideB - sideC * sideC) / (2 * sideA * sideB));
+            const angleDeg = convertRadiansToDegrees(angleRad);
+            return `The angle is: ${angleDeg} degrees`;
+        }
+
+        function calculateSineLawSide(sideA, angleA, angleB) {
+            const angleARad = convertDegreesToRadians(angleA);
+            const angleBRad = convertDegreesToRadians(angleB);
+            return (sideA / Math.sin(angleARad)) * Math.sin(angleBRad);
+        }
+
+        function calculateCosineLawSide(sideA, sideB, angleC) {
+            const angleCRad = convertDegreesToRadians(angleC);
+            return Math.sqrt(sideA * sideA + sideB * sideB - 2 * sideA * sideB * Math.cos(angleCRad));
+        }
+
+        // Additional functions for algebra
+        function solveLinearEquation(coefficients, constant) {
+            if (coefficients.length === 2) {
+                const x = constant / coefficients[0];
+                return `The solution is: x = ${x}`;
+            } else {
+                return "Error: Invalid linear equation.";
+            }
+        }
+
+        function solveSystemOfEquations(userInput) {
+            try {
+                const matrixValues = userInput.match(/-?\d+/g).map(Number);
+                const matrix = math.reshape(matrixValues, [matrixValues.length / 2, 2]);
+                const constants = matrixValues.slice(matrixValues.length / 2);
+                const solutions = math.lusolve(matrix, constants);
+                const variables = ['x', 'y', 'z', 'w', 'u', 'v']; // Extend as needed
+                let result = 'The solutions are: ';
+                for (let i = 0; i < solutions.length; i++) {
+                    result += `${variables[i]} = ${solutions[i][0]}, `;
                 }
+                return result.slice(0, -2); // Remove trailing comma
+            } catch (error) {
+                return "Error: Unable to solve the system of equations.";
             }
-            return null;
         }
 
-        // Function to generate a random number within the specified range
-        function generateRandomNumber(userInput) {
-            const match = userInput.match(/-?\d+(?:\.\d+)?/g);
-            if (match && match.length >= 2) {
-                const min = parseFloat(match[0]);
-                const max = parseFloat(match[1]);
-                if (!isNaN(min) && !isNaN(max)) {
-                    return Math.floor(Math.random() * (max - min + 1)) + min;
-                }
-            }
-            return null;
+        // Additional functions for geometry
+        function calculateVolumeOfSphere(radius) {
+            return (4 / 3) * Math.PI * Math.pow(radius, 3);
         }
 
-        // Function to perform operations (addition, multiplication, etc.) on a list of numbers
-        function performOperationsOnList(userInput) {
-            const keywords = ['add', 'multiply', 'sum', 'product'];
-
-            for (const keyword of keywords) {
-                if (userInput.includes(keyword)) {
-                    try {
-                        const list = userInput.match(/-?\d+(?:\.\d+)?/g).map(Number);
-                        const operation = keyword === 'add' || keyword === 'sum' ? 'add' : keyword === 'multiply' || keyword === 'product' ? 'multiply' : '';
-
-                        if (operation === 'add') {
-                            return list.reduce((a, b) => a + b, 0);
-                        } else if (operation === 'multiply') {
-                            return list.reduce((a, b) => a * b, 1);
-                        }
-                    } catch (error) {
-                        return null;
-                    }
-                }
-            }
-            return null;
+        function calculateVolumeOfCone(radius, height) {
+            return (1 / 3) * Math.PI * Math.pow(radius, 2) * height;
         }
 
-        // Function to calculate the factorial of a number
-        function calculateFactorial(userInput) {
-            if (userInput.includes('factorial')) {
-                try {
-                    const number = parseInt(userInput.match(/-?\d+/g)[0]);
-                    if (!isNaN(number)) {
-                        if (number === 0 || number === 1) {
-                            return 1;
-                        } else {
-                            let factorial = 1;
-                            for (let i = 2; i <= number; i++) {
-                                factorial *= i;
-                            }
-                            return factorial;
-                        }
-                    }
-                } catch (error) {
-                    return null;
-                }
-            }
-            return null;
-        }
-
-        // Function to get the formula for a specific shape or concept
-        function getFormula(userInput) {
-            const formulaName = userInput.replace('formula for', '').trim();
-            const formulas = {
-                'area of ellipse': 'Area = π * a * b',
-                'volume of sphere': 'Volume = (4/3) * π * r^3',
-                'surface area of torus': 'Surface Area = 4 * π^2 * R * r',
-                // Add more formulas here
-                // ...
-            };
-            return formulas[formulaName.toLowerCase()] || null;
-        }
-
-        // Function to handle advanced math problems
-        function solveAdvancedMathProblem(userInput) {
-            // Check for math word problems
-            const wordProblemResult = solveMathWordProblem(userInput);
-            if (wordProblemResult !== null) {
-                return wordProblemResult;
-            }
-
-            // Check for temperature conversion
-            const tempConversionResult = convertTemperature(userInput);
-            if (tempConversionResult !== null) {
-                return tempConversionResult;
-            }
-
-            // Check for random number generation
-            const randomNumberResult = generateRandomNumber(userInput);
-            if (randomNumberResult !== null) {
-                return randomNumberResult;
-            }
-
-            // Check for performing operations on a list
-            const operationsOnListResult = performOperationsOnList(userInput);
-            if (operationsOnListResult !== null) {
-                return operationsOnListResult;
-            }
-
-            // Check for calculating factorial
-            const factorialResult = calculateFactorial(userInput);
-            if (factorialResult !== null) {
-                return factorialResult;
-            }
-
-            // If none of the specific interactions match, use math.js to evaluate the expression
-            return solveMathExpression(userInput);
-        }
-
-        // Function to handle user input and generate bot responses
+        // Function to handle user input and bot response
         function botResponse(userInput) {
-            // Check if the user is asking for a specific formula
+            // Check for advanced math problems using math.js (previously added function)
+            const advancedMathResult = solveAdvancedMathProblem(userInput);
+            if (advancedMathResult !== null) {
+                const response = `The answer to "${userInput}" is: ${advancedMathResult}`;
+                saveUserInputAndAnswer(userInput, response);
+                return response;
+            }
+
+            // Check if the user is asking for a specific formula (previously added function)
             const formulaResult = getFormula(userInput);
             if (formulaResult !== null) {
                 return formulaResult;
             }
 
-            // Directly evaluate math expressions
-            const mathResult = solveAdvancedMathProblem(userInput);
-            if (mathResult !== null) {
-                saveUserInputAndAnswer(userInput, mathResult);
-                return `The answer to "${userInput}" is: ${mathResult}`;
+            // Check for specific interactions (previously added functions)
+            // ...
+
+            // Check for math word problems (previously added function)
+            const wordProblemResult = solveMathWordProblem(userInput);
+            if (wordProblemResult !== null) {
+                const response = `The answer to "${userInput}" is: ${wordProblemResult}`;
+                saveUserInputAndAnswer(userInput, response);
+                return response;
             }
 
-            // If it's a new question, prompt the user to provide an answer
-            const newAnswer = prompt(`You asked: "${userInput}"\n\nBot doesn't know the answer. Please provide one:`);
-            if (newAnswer) {
-                saveUserInputAndAnswer(userInput, newAnswer);
-                return `You asked: "${userInput}"\nBot: ${newAnswer}`;
-            } else {
-                return "I'm sorry, I couldn't understand your question.";
+            // Check for temperature conversion (previously added function)
+            const tempConversionResult = convertTemperature(userInput, 'celsius', 'fahrenheit');
+            if (tempConversionResult !== null) {
+                return tempConversionResult;
             }
+
+            // Check for calculus problems (previously added functions)
+            if (userInput.includes('calculate area under curve')) {
+                const expression = userInput.replace('calculate area under curve of', '');
+                const areaUnderCurve = calculateAreaUnderCurve(expression, 'x', 0, 10); // Assume lower and upper limits are 0 and 10
+                return areaUnderCurve;
+            } else if (userInput.includes('calculate tangent')) {
+                const expression = userInput.replace('calculate tangent of', '');
+                const tangent = calculateTangent(expression, 'x', 0); // Assume the tangent point is at x=0
+                return tangent;
+            }
+
+            // Check for statistics problems (previously added functions)
+            if (userInput.includes('calculate variance')) {
+                const numbers = userInput.match(/-?\d+/g).map(Number);
+                const variance = calculateVariance(numbers);
+                return `The variance of the numbers is: ${variance}`;
+            } else if (userInput.includes('calculate coefficient of variation')) {
+                const numbers = userInput.match(/-?\d+/g).map(Number);
+                const coeffOfVariation = calculateCoefficientOfVariation(numbers);
+                return `The coefficient of variation is: ${coeffOfVariation}%`;
+            }
+
+            // Check for trigonometry problems (previously added functions)
+            if (userInput.includes('calculate angle of triangle')) {
+                const sides = userInput.match(/\d+/g).map(Number);
+                const angle = calculateTriangleAngle(sides[0], sides[1], sides[2]);
+                return angle;
+            } else if (userInput.includes('calculate side using sine law')) {
+                const values = userInput.match(/\d+/g).map(Number);
+                const side = calculateSineLawSide(values[0], values[1], values[2]);
+                return `The side length is approximately: ${side}`;
+            } else if (userInput.includes('calculate side using cosine law')) {
+                const values = userInput.match(/\d+/g).map(Number);
+                const side = calculateCosineLawSide(values[0], values[1], values[2]);
+                return `The side length is approximately: ${side}`;
+            }
+
+            // Check for algebra problems (previously added functions)
+            if (userInput.includes('solve linear equation')) {
+                const values = userInput.match(/-?\d+/g).map(Number);
+                const equationResult = solveLinearEquation(values.slice(0, -1), values[values.length - 1]);
+                return equationResult;
+            } else if (userInput.includes('solve system of equations')) {
+                const systemResult = solveSystemOfEquations(userInput);
+                return systemResult;
+            }
+
+            // Check for geometry problems (previously added functions)
+            if (userInput.includes('calculate volume of sphere')) {
+                const radius = userInput.match(/\d+/g).map(Number)[0];
+                const volume = calculateVolumeOfSphere(radius);
+                return `The volume of the sphere is: ${volume}`;
+            } else if (userInput.includes('calculate volume of cone')) {
+                const values = userInput.match(/\d+/g).map(Number);
+                const volume = calculateVolumeOfCone(values[0], values[1]);
+                return `The volume of the cone is: ${volume}`;
+            }
+
+            // If no specific response is found, reply with a default message
+            const defaultResponse = "I'm sorry, I couldn't understand your question. Please try again.";
+            saveUserInputAndAnswer(userInput, defaultResponse);
+            return defaultResponse;
         }
 
-        // Function to handle user input and generate bot responses
+        function saveUserInputAndAnswer(userInput, botResponse) {
+            // Save the user input and bot's answer in botMemory (a dictionary) to remember previous interactions
+            botMemory[userInput] = botResponse;
+            localStorage.setItem('botMemory', JSON.stringify(botMemory));
+        }
+
         function askQuestion() {
             const userInput = document.getElementById('user-input').value;
-            if (userInput.trim() === '') return; // Ignore empty questions
-
             const chatBox = document.getElementById('chat-box');
-
-            // Get the bot's response based on user input
-            const botResponseText = botResponse(userInput);
-
-            // Show the user's question and bot's response in the chat box
-            chatBox.innerHTML += `<p><strong>You:</strong> ${userInput}</p>`;
-            chatBox.innerHTML += `<p><strong>Bot:</strong> ${botResponseText}</p>`;
-
-            // Clear the input field after processing the question
-            document.getElementById('user-input').value = '';
-
-            // Scroll to the bottom of the chat box to show the latest message
+            const userMessage = document.createElement('div');
+            userMessage.textContent = `You: ${userInput}`;
+            const botMessage = document.createElement('div');
+            botMessage.textContent = `Bot: ${botResponse(userInput)}`;
+            chatBox.appendChild(userMessage);
+            chatBox.appendChild(botMessage);
+            // Scroll to the bottom of the chat box to show the latest messages
             chatBox.scrollTop = chatBox.scrollHeight;
+            // Clear the user input field
+            document.getElementById('user-input').value = '';
         }
 
-        // Function to clear the chat history and local storage
         function clearChat() {
+            // Clear the chat box and botMemory
             const chatBox = document.getElementById('chat-box');
             chatBox.innerHTML = '';
             localStorage.removeItem('botMemory');
             botMemory = {};
         }
-
     </script>
 </body>
 </html>
