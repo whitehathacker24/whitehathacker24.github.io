@@ -142,17 +142,24 @@
             }
         }
 
+        function saveUserInputAndAnswer(userInput, answer) {
+            botMemory[userInput] = answer;
+            localStorage.setItem('botMemory', JSON.stringify(botMemory));
+        }
+
         function botResponse(userInput) {
             // Check for advanced math problems using math.js (previously added function)
             const advancedMathResult = solveAdvancedMathProblem(userInput);
             if (advancedMathResult !== null) {
-                return `The answer to "${userInput}" is: ${advancedMathResult}`;
+                const response = `The answer to "${userInput}" is: ${advancedMathResult}`;
+                saveUserInputAndAnswer(userInput, response);
+                return response;
             }
 
             // Check if the user is asking for a specific formula (previously added function)
             const formulaResult = getFormula(userInput);
             if (formulaResult !== null) {
-                return `The formula for "${userInput}" is: ${formulaResult}`;
+                return formulaResult;
             }
 
             // Check for specific interactions (previously added functions)
@@ -160,7 +167,9 @@
             // Check for math word problems
             const wordProblemResult = solveMathWordProblem(userInput);
             if (wordProblemResult !== null) {
-                return `The answer to "${userInput}" is: ${wordProblemResult}`;
+                const response = `The answer to "${userInput}" is: ${wordProblemResult}`;
+                saveUserInputAndAnswer(userInput, response);
+                return response;
             }
 
             // Check for temperature conversion
@@ -169,11 +178,64 @@
                 return tempConversionResult;
             }
 
+            // Check for geometry calculations
+            if (userInput.includes('calculate rectangle area')) {
+                const dimensions = userInput.match(/\d+/g).map(Number);
+                if (dimensions.length === 2) {
+                    const area = calculateRectangleArea(dimensions[0], dimensions[1]);
+                    return `The area of the rectangle is: ${area}`;
+                }
+            } else if (userInput.includes('calculate circle area')) {
+                const radius = userInput.match(/\d+/g).map(Number)[0];
+                const area = calculateCircleArea(radius);
+                return `The area of the circle is: ${area}`;
+            }
+
+            // Check for algebra problems
+            if (userInput.includes('solve quadratic equation')) {
+                const coefficients = userInput.match(/-?\d+/g).map(Number);
+                if (coefficients.length === 3) {
+                    const solution = solveQuadraticEquation(coefficients[0], coefficients[1], coefficients[2]);
+                    return solution;
+                }
+            }
+
+            // Check for trigonometry problems
+            if (userInput.includes('convert degrees to radians')) {
+                const degrees = userInput.match(/\d+/g).map(Number)[0];
+                const radians = convertDegreesToRadians(degrees);
+                return `The value in radians is: ${radians}`;
+            } else if (userInput.includes('convert radians to degrees')) {
+                const radians = userInput.match(/\d+(?:\.\d+)?/g).map(Number)[0];
+                const degrees = convertRadiansToDegrees(radians);
+                return `The value in degrees is: ${degrees}`;
+            } else if (userInput.includes('calculate right triangle hypotenuse')) {
+                const sides = userInput.match(/\d+/g).map(Number);
+                if (sides.length === 2) {
+                    const hypotenuse = calculateRightTriangleHypotenuse(sides[0], sides[1]);
+                    return `The length of the hypotenuse is: ${hypotenuse}`;
+                }
+            }
+
+            // Check for statistics problems
+            if (userInput.includes('calculate mean')) {
+                const numbers = userInput.match(/-?\d+/g).map(Number);
+                const mean = calculateMean(numbers);
+                return `The mean of the numbers is: ${mean}`;
+            } else if (userInput.includes('calculate median')) {
+                const numbers = userInput.match(/-?\d+/g).map(Number);
+                const median = calculateMedian(numbers);
+                return `The median of the numbers is: ${median}`;
+            } else if (userInput.includes('calculate standard deviation')) {
+                const numbers = userInput.match(/-?\d+/g).map(Number);
+                const stDeviation = calculateStandardDeviation(numbers);
+                return `The standard deviation of the numbers is: ${stDeviation}`;
+            }
+
             // If it's a new question, prompt the user to provide an answer
             const newAnswer = prompt(`You asked: "${userInput}"\n\nBot doesn't know the answer. Please provide one:`);
             if (newAnswer) {
-                botMemory[userInput] = newAnswer;
-                localStorage.setItem('botMemory', JSON.stringify(botMemory));
+                saveUserInputAndAnswer(userInput, newAnswer);
                 return `You asked: "${userInput}"\nBot: ${newAnswer}`;
             } else {
                 return "I'm sorry, I couldn't understand your question.";
@@ -208,8 +270,6 @@
             botMemory = {};
         }
 
-        // Additional functions (solveAdvancedMathProblem, botResponse)
-
         // Additional formulas
         const formulas = {
             'area of ellipse': 'Area = π * a * b',
@@ -218,6 +278,84 @@
             // Add more formulas here
             // ...
         };
+
+        // Additional geometry functions
+        function calculateRectangleArea(length, width) {
+            return length * width;
+        }
+
+        function calculateCircleArea(radius) {
+            return Math.PI * radius * radius;
+        }
+
+        // Additional algebra functions
+        function solveQuadraticEquation(a, b, c) {
+            const discriminant = b * b - 4 * a * c;
+            if (discriminant < 0) {
+                return "The quadratic equation has no real roots.";
+            } else if (discriminant === 0) {
+                const root = -b / (2 * a);
+                return `The quadratic equation has a single real root: x = ${root}`;
+            } else {
+                const root1 = (-b + Math.sqrt(discriminant)) / (2 * a);
+                const root2 = (-b - Math.sqrt(discriminant)) / (2 * a);
+                return `The quadratic equation has two real roots: x₁ = ${root1}, x₂ = ${root2}`;
+            }
+        }
+
+        // Additional trigonometry functions
+        function convertDegreesToRadians(degrees) {
+            return degrees * (Math.PI / 180);
+        }
+
+        function convertRadiansToDegrees(radians) {
+            return radians * (180 / Math.PI);
+        }
+
+        function calculateRightTriangleHypotenuse(base, height) {
+            return Math.sqrt(base * base + height * height);
+        }
+
+        // Additional statistics functions
+        function calculateMean(numbers) {
+            return numbers.reduce((sum, num) => sum + num, 0) / numbers.length;
+        }
+
+        function calculateMedian(numbers) {
+            const sortedNumbers = numbers.slice().sort((a, b) => a - b);
+            const middle = Math.floor(sortedNumbers.length / 2);
+            if (sortedNumbers.length % 2 === 0) {
+                return (sortedNumbers[middle - 1] + sortedNumbers[middle]) / 2;
+            } else {
+                return sortedNumbers[middle];
+            }
+        }
+
+        function calculateStandardDeviation(numbers) {
+            const mean = calculateMean(numbers);
+            const squaredDifferences = numbers.map(num => (num - mean) * (num - mean));
+            const variance = squaredDifferences.reduce((sum, num) => sum + num, 0) / numbers.length;
+            return Math.sqrt(variance);
+        }
+
+        // Additional calculus functions
+        function calculateDerivative(expression, variable) {
+            try {
+                const derivative = math.derivative(expression, variable);
+                return derivative.toString();
+            } catch (error) {
+                return "Error: Unable to calculate the derivative.";
+            }
+        }
+
+        function calculateIntegral(expression, variable, lowerLimit, upperLimit) {
+            try {
+                const integral = math.integral(expression, variable, { from: lowerLimit, to: upperLimit });
+                return integral.toString();
+            } catch (error) {
+                return "Error: Unable to calculate the integral.";
+            }
+        }
 
     </script>
 </body>
