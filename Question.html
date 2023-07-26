@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Bot</title>
+    <style>
+        /* Add some basic styling for better appearance */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #chat-box {
+            width: 300px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            overflow-y: scroll;
+            height: 200px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Simple Bot</h1>
+    <div>
+        <label for="user-input">Ask a question:</label>
+        <input type="text" id="user-input" />
+        <button onclick="askQuestion()">Ask</button>
+    </div>
+    <div id="chat-box"></div>
+
+    <script>
+        // Load previous questions and answers from local storage (if any)
+        let botMemory = JSON.parse(localStorage.getItem('botMemory')) || {};
+
+        function solveMathProblem(question) {
+            try {
+                // Evaluate the math problem using JavaScript's eval() function
+                const result = eval(question);
+                return result;
+            } catch (error) {
+                // Return null if there was an error in solving the math problem
+                return null;
+            }
+        }
+
+        function askQuestion() {
+            const userInput = document.getElementById('user-input').value;
+            if (userInput.trim() === '') return; // Ignore empty questions
+
+            const answer = botMemory[userInput];
+            const chatBox = document.getElementById('chat-box');
+
+            if (answer) {
+                // If the question already exists, show the answer from memory
+                chatBox.innerHTML += `<p><strong>You:</strong> ${userInput}</p>`;
+                chatBox.innerHTML += `<p><strong>Bot:</strong> ${answer}</p>`;
+            } else {
+                // Check if it's a math problem and try to solve it
+                const mathResult = solveMathProblem(userInput);
+                if (mathResult !== null) {
+                    botMemory[userInput] = mathResult;
+                    localStorage.setItem('botMemory', JSON.stringify(botMemory));
+
+                    chatBox.innerHTML += `<p><strong>You:</strong> ${userInput}</p>`;
+                    chatBox.innerHTML += `<p><strong>Bot:</strong> ${mathResult}</p>`;
+                } else {
+                    // If it's a new question, prompt the user to provide an answer
+                    const newAnswer = prompt(`You asked: "${userInput}"\n\nBot doesn't know the answer. Please provide one:`);
+                    if (newAnswer) {
+                        botMemory[userInput] = newAnswer;
+                        localStorage.setItem('botMemory', JSON.stringify(botMemory));
+
+                        chatBox.innerHTML += `<p><strong>You:</strong> ${userInput}</p>`;
+                        chatBox.innerHTML += `<p><strong>Bot:</strong> ${newAnswer}</p>`;
+                    }
+                }
+            }
+
+            // Clear the input field after processing the question
+            document.getElementById('user-input').value = '';
+
+            // Scroll to the bottom of the chat box to show the latest message
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    </script>
+</body>
+</html>
