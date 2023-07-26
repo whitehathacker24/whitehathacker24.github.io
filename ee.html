@@ -55,4 +55,12 @@
         botAnswerDiv.textContent = `Bot's Answer: Question not found in history.`;
       }
     }
+   const form = document.getElementById('qaForm');
+    form.addEventListener('submit', handleSubmit);
+
+
+
+    // Display bot's answer on question input change
+    const questionInput = document.getElementById('question');
+    questionInput.addEventListener('input', handleBotAnswer);
 </script>
