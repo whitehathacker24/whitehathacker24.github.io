@@ -35,37 +35,34 @@
         // Load previous questions and answers from local storage (if any)
         let botMemory = JSON.parse(localStorage.getItem('botMemory')) || {};
 
-        // Function to evaluate math expressions directly using math.js
-        function solveMathExpression(userInput) {
+        // Function to save user input and bot's answer in local storage
+        function saveUserInputAndAnswer(userInput, answer) {
+            botMemory[userInput] = answer;
+            localStorage.setItem('botMemory', JSON.stringify(botMemory));
+        }
+
+        // Function to directly evaluate math expressions using math.js
+        function solveMathExpression(expression) {
             try {
-                const result = math.evaluate(userInput);
+                const result = math.evaluate(expression);
                 return result;
             } catch (error) {
                 return null;
             }
         }
 
-        // Function to check if the user is asking for a specific formula
-        function getFormula(userInput) {
-            const formulaName = userInput.replace('formula for', '').trim();
-            const formula = formulas[formulaName.toLowerCase()];
-            return formula ? formula : null;
-        }
-
         // Function to handle math word problems
-        function solveMathWordProblem(userInput) {
-            // Logic to solve math word problems
+        function solveMathWordProblem(problem) {
             const keywords = ['plus', 'add', 'sum', 'total', 'minus', 'subtract', 'difference', 'times', 'multiply', 'multiplied', 'product', 'divided', 'quotient', 'how many', 'how much'];
 
             for (const keyword of keywords) {
-                if (userInput.includes(keyword)) {
+                if (problem.includes(keyword)) {
                     try {
-                        // Extract numbers from the problem
-                        const numbers = userInput.match(/\d+/g).map(Number);
-                        const operation = userInput.includes('plus') || userInput.includes('add') || userInput.includes('sum') || userInput.includes('total') ? 'add' :
-                            userInput.includes('minus') || userInput.includes('subtract') || userInput.includes('difference') ? 'subtract' :
-                            userInput.includes('times') || userInput.includes('multiply') || userInput.includes('multiplied') ? 'multiply' :
-                            userInput.includes('divided') || userInput.includes('quotient') ? 'divide' : '';
+                        const numbers = problem.match(/-?\d+(?:\.\d+)?/g).map(Number);
+                        const operation = problem.includes('plus') || problem.includes('add') || problem.includes('sum') || problem.includes('total') ? 'add' :
+                            problem.includes('minus') || problem.includes('subtract') || problem.includes('difference') ? 'subtract' :
+                            problem.includes('times') || problem.includes('multiply') || problem.includes('multiplied') ? 'multiply' :
+                            problem.includes('divided') || problem.includes('quotient') ? 'divide' : '';
 
                         if (operation === 'add') {
                             return numbers.reduce((a, b) => a + b, 0);
@@ -84,242 +81,29 @@
             return null;
         }
 
-        // Function to convert temperature between Celsius, Fahrenheit, and Kelvin
+        // Function to handle temperature conversions
         function convertTemperature(userInput) {
-            const celsiusKeywords = ['celsius', 'degrees celsius', '°c'];
-            const fahrenheitKeywords = ['fahrenheit', 'degrees fahrenheit', '°f'];
-            const kelvinKeywords = ['kelvin', 'degrees kelvin', '°k'];
+            const keywords = ['celsius', 'fahrenheit', 'kelvin'];
 
-            let fromUnit, toUnit, temp;
-
-            if (celsiusKeywords.some(keyword => userInput.includes(keyword))) {
-                fromUnit = 'celsius';
-            } else if (fahrenheitKeywords.some(keyword => userInput.includes(keyword))) {
-                fromUnit = 'fahrenheit';
-            } else if (kelvinKeywords.some(keyword => userInput.includes(keyword))) {
-                fromUnit = 'kelvin';
-            } else {
-                return null;
-            }
-
-            if (userInput.includes('to celsius') || userInput.includes('in celsius') || userInput.includes('°c')) {
-                toUnit = 'celsius';
-            } else if (userInput.includes('to fahrenheit') || userInput.includes('in fahrenheit') || userInput.includes('°f')) {
-                toUnit = 'fahrenheit';
-            } else if (userInput.includes('to kelvin') || userInput.includes('in kelvin') || userInput.includes('°k')) {
-                toUnit = 'kelvin';
-            } else {
-                return null;
-            }
-
-            try {
-                temp = parseFloat(userInput.match(/-?\d+(?:\.\d+)?/g)[0]);
-                if (!isNaN(temp)) {
-                    return convertTemperatureUnit(temp, fromUnit, toUnit);
-                }
-            } catch (error) {
-                return null;
-            }
-
-            return null;
-        }
-
-        // Function to perform temperature conversion
-        function convertTemperatureUnit(temp, fromUnit, toUnit) {
-            if (fromUnit === 'celsius' && toUnit === 'fahrenheit') {
-                return (temp * 9 / 5) + 32;
-            } else if (fromUnit === 'celsius' && toUnit === 'kelvin') {
-                return temp + 273.15;
-            } else if (fromUnit === 'fahrenheit' && toUnit === 'celsius') {
-                return (temp - 32) * 5 / 9;
-            } else if (fromUnit === 'fahrenheit' && toUnit === 'kelvin') {
-                return (temp - 32) * 5 / 9 + 273.15;
-            } else if (fromUnit === 'kelvin' && toUnit === 'celsius') {
-                return temp - 273.15;
-            } else if (fromUnit === 'kelvin' && toUnit === 'fahrenheit') {
-                return (temp - 273.15) * 9 / 5 + 32;
-            } else {
-                return null;
-            }
-        }
-
-        // Function to generate a random number within the specified range
-        function generateRandomNumber(userInput) {
-            const keywords = ['random number', 'between', 'and'];
-
-            if (keywords.every(keyword => userInput.includes(keyword))) {
-                try {
-                    const range = userInput.match(/-?\d+(?:\.\d+)?/g).map(Number);
-                    if (range.length === 2) {
-                        return generateRandomNumberInRange(range[0], range[1]);
-                    }
-                } catch (error) {
-                    return null;
-                }
-            }
-            return null;
-        }
-
-        // Function to generate a random number within a specified range
-        function generateRandomNumberInRange(min, max) {
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-        }
-
-        // Function to perform operations (addition, multiplication, etc.) on a list of numbers
-        function performOperationsOnList(userInput) {
-            const keywords = ['sum', 'total', 'add', 'multiply', 'product', 'divide', 'quotient', 'average'];
-
-            if (keywords.some(keyword => userInput.includes(keyword))) {
-                try {
-                    const numbers = userInput.match(/-?\d+(?:\.\d+)?/g).map(Number);
-                    const operation = keywords.find(keyword => userInput.includes(keyword));
-                    return performOperationOnList(numbers, operation);
-                } catch (error) {
-                    return null;
-                }
-            }
-            return null;
-        }
-
-        // Function to perform operation on a list of numbers
-        function performOperationOnList(list, operation) {
-            if (operation === 'sum' || operation === 'total' || operation === 'add') {
-                return list.reduce((a, b) => a + b, 0);
-            } else if (operation === 'multiply' || operation === 'product') {
-                return list.reduce((a, b) => a * b, 1);
-            } else if (operation === 'divide' || operation === 'quotient') {
-                return list.reduce((a, b) => a / b);
-            } else if (operation === 'average') {
-                return list.reduce((a, b) => a + b, 0) / list.length;
-            } else {
-                return null;
-            }
-        }
-
-        // Function to calculate the factorial of a number
-        function calculateFactorial(userInput) {
-            if (userInput.includes('factorial of')) {
-                try {
-                    const number = parseInt(userInput.match(/-?\d+/g)[0]);
-                    if (!isNaN(number)) {
-                        return calculateFactorialNumber(number);
-                    }
-                } catch (error) {
-                    return null;
-                }
-            }
-            return null;
-        }
-
-        // Function to calculate the factorial of a number
-        function calculateFactorialNumber(number) {
-            if (number === 0 || number === 1) {
-                return 1;
-            } else {
-                let factorial = 1;
-                for (let i = 2; i <= number; i++) {
-                    factorial *= i;
-                }
-                return factorial;
-            }
-        }
-
-        // Function to generate a random password of the specified length
-        function generateRandomPassword(userInput) {
-            if (userInput.includes('generate password of length')) {
-                try {
-                    const length = parseInt(userInput.match(/-?\d+/g)[0]);
-                    if (!isNaN(length)) {
-                        return generatePassword(length);
-                    }
-                } catch (error) {
-                    return null;
-                }
-            }
-            return null;
-        }
-
-        // Function to generate a random password of the specified length
-        function generatePassword(length) {
-            const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let password = '';
-            for (let i = 0; i < length; i++) {
-                const randomIndex = Math.floor(Math.random() * charset.length);
-                password += charset[randomIndex];
-            }
-            return password;
-        }
-
-        // Function to solve trigonometry problems
-        function solveTrigonometryProblem(userInput) {
-            const trigKeywords = ['sin', 'cos', 'tan', 'csc', 'sec', 'cot'];
-
-            if (trigKeywords.some(keyword => userInput.includes(keyword))) {
-                try {
-                    const expression = userInput.replace(/([a-z]+)/g, match => `math.${match}`);
-                    const result = math.evaluate(expression);
-                    return result;
-                } catch (error) {
-                    return null;
-                }
-            }
-            return null;
-        }
-
-        // Function to calculate the area of a rectangle
-        function calculateRectangleArea(userInput) {
-            const rectangleKeywords = ['rectangle', 'area'];
-
-            if (rectangleKeywords.every(keyword => userInput.includes(keyword))) {
-                try {
-                    const dimensions = userInput.match(/-?\d+(?:\.\d+)?/g).map(Number);
-                    if (dimensions.length === 2) {
-                        const area = dimensions[0] * dimensions[1];
-                        return area;
-                    }
-                } catch (error) {
-                    return null;
-                }
-            }
-            return null;
-        }
-
-        // Function to calculate the area of a circle
-        function calculateCircleArea(userInput) {
-            const circleKeywords = ['circle', 'area'];
-
-            if (circleKeywords.every(keyword => userInput.includes(keyword))) {
-                try {
-                    const radius = userInput.match(/-?\d+(?:\.\d+)?/g).map(Number)[0];
-                    const area = Math.PI * Math.pow(radius, 2);
-                    return area;
-                } catch (error) {
-                    return null;
-                }
-            }
-            return null;
-        }
-
-        // Function to solve systems of linear equations
-        function solveLinearEquations(userInput) {
-            if (userInput.includes('solve the system of equations')) {
-                const equations = userInput.split('and').map(eq => eq.trim());
-
-                if (equations.length === 2) {
+            for (const keyword of keywords) {
+                if (userInput.includes(keyword)) {
                     try {
-                        const equation1 = equations[0].replace(/x/g, 'X').replace(/y/g, 'Y');
-                        const equation2 = equations[1].replace(/x/g, 'X').replace(/y/g, 'Y');
-
-                        const parsedEquation1 = math.parse(equation1).compile();
-                        const parsedEquation2 = math.parse(equation2).compile();
-
-                        const findX = math.solve(parsedEquation1, math.parse('X'));
-                        const findY = math.substitute(parsedEquation2, { 'X': findX });
-
-                        const x = findX.evaluate();
-                        const y = findY.evaluate();
-
-                        return `X = ${x}, Y = ${y}`;
+                        const temp = parseFloat(userInput.match(/-?\d+(?:\.\d+)?/g)[0]);
+                        if (!isNaN(temp)) {
+                            if (userInput.includes('celsius') && userInput.includes('fahrenheit')) {
+                                return (temp * 9 / 5) + 32;
+                            } else if (userInput.includes('celsius') && userInput.includes('kelvin')) {
+                                return temp + 273.15;
+                            } else if (userInput.includes('fahrenheit') && userInput.includes('celsius')) {
+                                return (temp - 32) * 5 / 9;
+                            } else if (userInput.includes('fahrenheit') && userInput.includes('kelvin')) {
+                                return (temp - 32) * 5 / 9 + 273.15;
+                            } else if (userInput.includes('kelvin') && userInput.includes('celsius')) {
+                                return temp - 273.15;
+                            } else if (userInput.includes('kelvin') && userInput.includes('fahrenheit')) {
+                                return (temp - 273.15) * 9 / 5 + 32;
+                            }
+                        }
                     } catch (error) {
                         return null;
                     }
@@ -328,15 +112,58 @@
             return null;
         }
 
-        // Function to find the roots of a polynomial equation
-        function findPolynomialRoots(userInput) {
-            if (userInput.includes('find the roots of')) {
-                try {
-                    const equation = userInput.replace(/x/g, 'X');
-                    const parsedEquation = math.parse(equation).compile();
+        // Function to generate a random number within the specified range
+        function generateRandomNumber(userInput) {
+            const match = userInput.match(/-?\d+(?:\.\d+)?/g);
+            if (match && match.length >= 2) {
+                const min = parseFloat(match[0]);
+                const max = parseFloat(match[1]);
+                if (!isNaN(min) && !isNaN(max)) {
+                    return Math.floor(Math.random() * (max - min + 1)) + min;
+                }
+            }
+            return null;
+        }
 
-                    const roots = math.roots(parsedEquation, 'X').map(root => root.toFixed(2));
-                    return `The roots of the equation are: ${roots.join(', ')}`;
+        // Function to perform operations (addition, multiplication, etc.) on a list of numbers
+        function performOperationsOnList(userInput) {
+            const keywords = ['add', 'multiply', 'sum', 'product'];
+
+            for (const keyword of keywords) {
+                if (userInput.includes(keyword)) {
+                    try {
+                        const list = userInput.match(/-?\d+(?:\.\d+)?/g).map(Number);
+                        const operation = keyword === 'add' || keyword === 'sum' ? 'add' : keyword === 'multiply' || keyword === 'product' ? 'multiply' : '';
+
+                        if (operation === 'add') {
+                            return list.reduce((a, b) => a + b, 0);
+                        } else if (operation === 'multiply') {
+                            return list.reduce((a, b) => a * b, 1);
+                        }
+                    } catch (error) {
+                        return null;
+                    }
+                }
+            }
+            return null;
+        }
+
+        // Function to calculate the factorial of a number
+        function calculateFactorial(userInput) {
+            if (userInput.includes('factorial')) {
+                try {
+                    const number = parseInt(userInput.match(/-?\d+/g)[0]);
+                    if (!isNaN(number)) {
+                        if (number === 0 || number === 1) {
+                            return 1;
+                        } else {
+                            let factorial = 1;
+                            for (let i = 2; i <= number; i++) {
+                                factorial *= i;
+                            }
+                            return factorial;
+                        }
+                    }
                 } catch (error) {
                     return null;
                 }
@@ -344,108 +171,68 @@
             return null;
         }
 
-        // Function to handle user input and generate bot responses
-        function botResponse(userInput) {
-            // Check for direct math expressions using math.js
-            const mathExpressionResult = solveMathExpression(userInput);
-            if (mathExpressionResult !== null) {
-                const response = `The result of the expression "${userInput}" is: ${mathExpressionResult}`;
-                saveUserInputAndAnswer(userInput, response);
-                return response;
+        // Function to get the formula for a specific shape or concept
+        function getFormula(userInput) {
+            const formulaName = userInput.replace('formula for', '').trim();
+            const formulas = {
+                'area of ellipse': 'Area = π * a * b',
+                'volume of sphere': 'Volume = (4/3) * π * r^3',
+                'surface area of torus': 'Surface Area = 4 * π^2 * R * r',
+                // Add more formulas here
+                // ...
+            };
+            return formulas[formulaName.toLowerCase()] || null;
+        }
+
+        // Function to handle advanced math problems
+        function solveAdvancedMathProblem(userInput) {
+            // Check for math word problems
+            const wordProblemResult = solveMathWordProblem(userInput);
+            if (wordProblemResult !== null) {
+                return wordProblemResult;
             }
 
+            // Check for temperature conversion
+            const tempConversionResult = convertTemperature(userInput);
+            if (tempConversionResult !== null) {
+                return tempConversionResult;
+            }
+
+            // Check for random number generation
+            const randomNumberResult = generateRandomNumber(userInput);
+            if (randomNumberResult !== null) {
+                return randomNumberResult;
+            }
+
+            // Check for performing operations on a list
+            const operationsOnListResult = performOperationsOnList(userInput);
+            if (operationsOnListResult !== null) {
+                return operationsOnListResult;
+            }
+
+            // Check for calculating factorial
+            const factorialResult = calculateFactorial(userInput);
+            if (factorialResult !== null) {
+                return factorialResult;
+            }
+
+            // If none of the specific interactions match, use math.js to evaluate the expression
+            return solveMathExpression(userInput);
+        }
+
+        // Function to handle user input and generate bot responses
+        function botResponse(userInput) {
             // Check if the user is asking for a specific formula
             const formulaResult = getFormula(userInput);
             if (formulaResult !== null) {
                 return formulaResult;
             }
 
-            // Check for math word problems
-            const wordProblemResult = solveMathWordProblem(userInput);
-            if (wordProblemResult !== null) {
-                const response = `The answer to "${userInput}" is: ${wordProblemResult}`;
-                saveUserInputAndAnswer(userInput, response);
-                return response;
-            }
-
-            // Check for temperature conversion
-            const tempConversionResult = convertTemperature(userInput);
-            if (tempConversionResult !== null) {
-                const response = `The temperature conversion is: ${tempConversionResult.toFixed(2)}`;
-                saveUserInputAndAnswer(userInput, response);
-                return response;
-            }
-
-            // Check for generating random numbers
-            const randomNumberResult = generateRandomNumber(userInput);
-            if (randomNumberResult !== null) {
-                const response = `The random number is: ${randomNumberResult}`;
-                saveUserInputAndAnswer(userInput, response);
-                return response;
-            }
-
-            // Check for performing operations on a list of numbers
-            const listOperationResult = performOperationsOnList(userInput);
-            if (listOperationResult !== null) {
-                const response = `The result is: ${listOperationResult}`;
-                saveUserInputAndAnswer(userInput, response);
-                return response;
-            }
-
-            // Check for calculating factorial
-            const factorialResult = calculateFactorial(userInput);
-            if (factorialResult !== null) {
-                const response = `The factorial is: ${factorialResult}`;
-                saveUserInputAndAnswer(userInput, response);
-                return response;
-            }
-
-            // Check for generating random password
-            const randomPasswordResult = generateRandomPassword(userInput);
-            if (randomPasswordResult !== null) {
-                const response = `The generated password is: ${randomPasswordResult}`;
-                saveUserInputAndAnswer(userInput, response);
-                return response;
-            }
-
-            // Check for solving trigonometry problems
-            const trigResult = solveTrigonometryProblem(userInput);
-            if (trigResult !== null) {
-                const response = `The result of the trigonometry expression is: ${trigResult}`;
-                saveUserInputAndAnswer(userInput, response);
-                return response;
-            }
-
-            // Check for calculating rectangle area
-            const rectangleAreaResult = calculateRectangleArea(userInput);
-            if (rectangleAreaResult !== null) {
-                const response = `The area of the rectangle is: ${rectangleAreaResult}`;
-                saveUserInputAndAnswer(userInput, response);
-                return response;
-            }
-
-            // Check for calculating circle area
-            const circleAreaResult = calculateCircleArea(userInput);
-            if (circleAreaResult !== null) {
-                const response = `The area of the circle is: ${circleAreaResult.toFixed(2)}`;
-                saveUserInputAndAnswer(userInput, response);
-                return response;
-            }
-
-            // Check for solving systems of linear equations
-            const linearEquationsResult = solveLinearEquations(userInput);
-            if (linearEquationsResult !== null) {
-                const response = `The solution to the system of equations is: ${linearEquationsResult}`;
-                saveUserInputAndAnswer(userInput, response);
-                return response;
-            }
-
-            // Check for finding roots of polynomial equations
-            const polynomialRootsResult = findPolynomialRoots(userInput);
-            if (polynomialRootsResult !== null) {
-                const response = polynomialRootsResult;
-                saveUserInputAndAnswer(userInput, response);
-                return response;
+            // Directly evaluate math expressions
+            const mathResult = solveAdvancedMathProblem(userInput);
+            if (mathResult !== null) {
+                saveUserInputAndAnswer(userInput, mathResult);
+                return `The answer to "${userInput}" is: ${mathResult}`;
             }
 
             // If it's a new question, prompt the user to provide an answer
@@ -458,7 +245,34 @@
             }
         }
 
-        // Rest of the script (excluding function definitions) remains unchanged...
+        // Function to handle user input and generate bot responses
+        function askQuestion() {
+            const userInput = document.getElementById('user-input').value;
+            if (userInput.trim() === '') return; // Ignore empty questions
+
+            const chatBox = document.getElementById('chat-box');
+
+            // Get the bot's response based on user input
+            const botResponseText = botResponse(userInput);
+
+            // Show the user's question and bot's response in the chat box
+            chatBox.innerHTML += `<p><strong>You:</strong> ${userInput}</p>`;
+            chatBox.innerHTML += `<p><strong>Bot:</strong> ${botResponseText}</p>`;
+
+            // Clear the input field after processing the question
+            document.getElementById('user-input').value = '';
+
+            // Scroll to the bottom of the chat box to show the latest message
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // Function to clear the chat history and local storage
+        function clearChat() {
+            const chatBox = document.getElementById('chat-box');
+            chatBox.innerHTML = '';
+            localStorage.removeItem('botMemory');
+            botMemory = {};
+        }
 
     </script>
 </body>
