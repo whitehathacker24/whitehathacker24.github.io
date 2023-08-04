@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .hexagon {
+      width: 60px;
+      height: 70px;
+      background-color: #f0f0f0;
+      border: 1px solid #999;
+      display: inline-block;
+      text-align: center;
+      line-height: 70px;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .even-row {
+      margin-left: 30px;
+    }
+  </style>
+</head>
+<body>
+  <div id="chessboard"></div>
+  <script>
+    const board = [
+      ['', '', '', '', '', ''],
+      ['', '', '', '', '', ''],
+      ['', '', '', '', '', ''],
+      ['', '', '', '', '', ''],
+      ['', '', '', '', '', ''],
+      ['', '', '', '', '', ''],
+    ];
+
+    const pieces = {
+      wP: '♙',
+      wR: '♖',
+      wN: '♘',
+      wB: '♗',
+      wQ: '♕',
+      wK: '♔',
+      bP: '♟',
+      bR: '♜',
+      bN: '♞',
+      bB: '♝',
+      bQ: '♛',
+      bK: '♚',
+    };
+
+    let currentPlayer = 'white';
+    let selectedPiece = null;
+    const chessboardEl = document.getElementById('chessboard');
+
+    function renderChessboard() {
+      let html = '';
+      for (let i = 0; i < 6; i++) {
+        for (let j = 0; j < 6; j++) {
+          const isEvenRow = i % 2 === 0;
+          const offset = isEvenRow ? 0 : 30;
+          html += `<div class="hexagon ${isEvenRow ? 'even-row' : ''}" data-row="${i}" data-col="${j}" style="margin-top:${i * 40}px; margin-left:${j * 60 + offset}px;">${board[i][j]}</div>`;
+        }
+      }
+      chessboardEl.innerHTML = html;
+    }
+
+    function isInsideBoard(row, col) {
+      return row >= 0 && row < 6 && col >= 0 && col < 6;
+    }
+
+    function isPieceOfCurrentPlayer(piece) {
+      return currentPlayer === 'white' ? piece.charAt(0) === 'w' : piece.charAt(0) === 'b';
+    }
+
+    function getPossibleMoves(row, col) {
+      const piece = board[row][col];
+      if (!isPieceOfCurrentPlayer(piece)) return [];
+
+      const pieceType = piece.charAt(1);
+
+      let moves = [];
+      if (pieceType === 'P') {
+        // Pawn moves
+        const forwardDir = currentPlayer === 'white' ? -1 : 1;
+        if (isInsideBoard(row + forwardDir, col)) {
+          if (board[row + forwardDir][col] === '') {
+            moves.push({ row: row + forwardDir, col });
+          }
+          if (isInsideBoard(row + forwardDir, col - 1) && board[row + forwardDir][col - 1] !== '' && !isPieceOfCurrentPlayer(board[row + forwardDir][col - 1])) {
+            moves.push({ row: row + forwardDir, col: col - 1 });
+          }
+          if (isInsideBoard(row + forwardDir, col + 1) && board[row + forwardDir][col + 1] !== '' && !isPieceOfCurrentPlayer(board[row + forwardDir][col + 1])) {
+            moves.push({ row: row + forwardDir, col: col + 1 });
+          }
+        }
+      } else if (pieceType === 'R') {
+        // Rook moves (horizontally and vertically)
+        const directions = [
+          { row: -1, col: 0 },
+          { row: 1, col: 0 },
+          { row: 0, col: -1 },
+          { row: 0, col: 1 },
+          { row: -1, col: -1 },
+          { row: 1, col: 1 },
+        ];
+
+        for (const dir of directions) {
+          let newRow = row + dir.row;
+          let newCol = col + dir.col;
+          while (isInsideBoard(newRow, newCol) && board[newRow][newCol] === '') {
+            moves.push({ row: newRow, col: newCol });
+            newRow += dir.row;
+            newCol += dir.col;
+          }
+        }
+      } else if (pieceType === 'N') {
+        // Knight moves
+        const movesOffset = [
+          { row: -1, col: -1 },
+          { row: -2, col: 0 },
+          { row: -1, col: 1 },
+          { row: 1, col: -1 },
+          { row: 2, col: 0 },
+          { row: 1, col: 1 },
+        ];
+
+        for (const offset of movesOffset) {
+          const newRow = row + offset.row;
+          const newCol = col + offset.col;
+          if (isInsideBoard(newRow, newCol) && (board[newRow][newCol] === '' || !isPieceOfCurrentPlayer(board[newRow][newCol]))) {
+            moves.push({ row: newRow, col: newCol });
+          }
+        }
+      } else if (pieceType === 'B') {
+        // Bishop moves (diagonally)
+        const directions = [
+          { row: -1, col: -1 },
+          { row: -1, col: 1 },
+          { row: 1, col: -1 },
+          { row: 1, col: 1 },
+          { row: -2, col: 0 },
+          { row: 2, col: 0 },
+        ];
+
+        for (const dir of directions) {
+          let newRow = row + dir.row;
+          let newCol = col + dir.col;
+          while (isInsideBoard(newRow, newCol) && board[newRow][newCol] === '') {
+            moves.push({ row: newRow, col: newCol });
+            newRow += dir.row;
+            newCol += dir.col;
+          }
+        }
+      } else if (pieceType === 'Q') {
+        // Queen moves (combination of rook and bishop)
+        const directions = [
+          { row: -1, col: 0 },
+          { row: 1, col: 0 },
+          { row: 0, col: -1 },
+          { row: 0, col: 1 },
+          { row: -1, col: -1 },
+          { row: 1, col: 1 },
+          { row: -1, col: 1 },
+          { row: 1, col: -1 },
+        ];
+
+        for (const dir of directions) {
+          let newRow = row + dir.row;
+          let newCol = col + dir.col;
+          while (isInsideBoard(newRow, newCol) && board[newRow][newCol] === '') {
+            moves.push({ row: newRow, col: newCol });
+            newRow += dir.row;
+            newCol += dir.col;
+          }
+        }
+      } else if (pieceType === 'K') {
+        // King moves
+        const directions = [
+          { row: -1, col: 0 },
+          { row: 1, col: 0 },
+          { row: 0, col: -1 },
+          { row: 0, col: 1 },
+          { row: -1, col: -1 },
+          { row: 1, col: 1 },
+          { row: -1, col: 1 },
+          { row: 1, col: -1 },
+        ];
+
+        for (const dir of directions) {
+          const newRow = row + dir.row;
+          const newCol = col + dir.col;
+          if (isInsideBoard(newRow, newCol) && (board[newRow][newCol] === '' || !isPieceOfCurrentPlayer(board[newRow][newCol]))) {
+            moves.push({ row: newRow, col: newCol });
+          }
+        }
+      }
+
+      return moves;
+    }
+
+    function isValidMove(startRow, startCol, endRow, endCol) {
+      const moves = getPossibleMoves(startRow, startCol);
+      return moves.some((move) => move.row === endRow && move.col === endCol);
+    }
+
+    function movePiece(startRow, startCol, endRow, endCol) {
+      if (isValidMove(startRow, startCol, endRow, endCol)) {
+        board[endRow][endCol] = board[startRow][startCol];
+        board[startRow][startCol] = '';
+        currentPlayer = currentPlayer === 'white' ? 'black' : 'white';
+        renderChessboard();
+      }
+    }
+
+    function isSquareUnderAttack(row, col, attackingPlayer) {
+      for (let i = 0; i < 6; i++) {
+        for (let j = 0; j < 6; j++) {
+          if (isPieceOfCurrentPlayer(board[i][j])) continue;
+          const moves = getPossibleMoves(i, j);
+          if (moves.some((move) => move.row === row && move.col === col)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    function isCheck() {
+      for (let i = 0; i < 6; i++) {
+        for (let j = 0; j < 6; j++) {
+          const piece = board[i][j];
+          if (isPieceOfCurrentPlayer(piece) && piece.charAt(1) === 'K') {
+            return isSquareUnderAttack(i, j, currentPlayer === 'white' ? 'black' : 'white');
+          }
+        }
+      }
+      return false;
+    }
+
+    function isCheckmate() {
+      if (!isCheck()) return false;
+      for (let i = 0; i < 6; i++) {
+        for (let j = 0; j < 6; j++) {
+          const piece = board[i][j];
+          if (isPieceOfCurrentPlayer(piece)) {
+            const moves = getPossibleMoves(i, j);
+            for (const move of moves) {
+              const prevPiece = board[move.row][move.col];
+              board[move.row][move.col] = piece;
+              board[i][j] = '';
+              const isCheckAfterMove = isCheck();
+              board[move.row][move.col] = prevPiece;
+              board[i][j] = piece;
+              if (!isCheckAfterMove) {
+                return false;
+              }
+            }
+          }
+        }
+      }
+      return true;
+    }
+
+    function handleHexClick(event) {
+      const row = parseInt(event.target.dataset.row);
+      const col = parseInt(event.target.dataset.col);
+
+      if (selectedPiece === null) {
+        if (board[row][col] !== '' && isPieceOfCurrentPlayer(board[row][col])) {
+          selectedPiece = { row, col };
+          event.target.style.backgroundColor = 'lightblue';
+        }
+      } else {
+        if (isValidMove(selectedPiece.row, selectedPiece.col, row, col)) {
+          const pieceAtDestination = board[row][col];
+          if (pieceAtDestination === '' || !isPieceOfCurrentPlayer(pieceAtDestination)) {
+            movePiece(selectedPiece.row, selectedPiece.col, row, col);
+          }
+        }
+        event.target.style.backgroundColor = '';
+        selectedPiece = null;
+
+        if (isCheckmate()) {
+          alert(`Checkmate! ${currentPlayer === 'white' ? 'Black' : 'White'} wins!`);
+          // Reset the game or take appropriate action when checkmate occurs
+          // For simplicity, we will just reload the page after a checkmate
+          location.reload();
+        } else if (isCheck()) {
+          alert(`${currentPlayer === 'white' ? 'White' : 'Black'} is in check!`);
+        }
+      }
+    }
+
+    renderChessboard();
+    chessboardEl.addEventListener('click', handleHexClick);
+  </script>
+</body>
+</html>
