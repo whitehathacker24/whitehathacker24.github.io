@@ -216,7 +216,7 @@
 
     function startWave() {
       if (isPaused) return;
-      
+
       if (waveNumber >= enemyWaves.length) {
         if (endlessMode) {
           setTimeout(startWave, endlessWaveInterval);
