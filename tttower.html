@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tower Defense Game</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    .enemy {
+      position: relative;
+    }
+    .health-bar {
+      width: 100%;
+      height: 5px;
+      background-color: red;
+      position: absolute;
+      top: -10px;
+    }
+    .grid-cell {
+      position: relative;
+      width: 80px;
+      height: 80px;
+    }
+    .tower {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .tower-icon {
+      font-size: 32px;
+    }
+    .tower-range {
+      position: absolute;
+      border: 2px dashed rgba(0, 0, 255, 0.3);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .tower-selected {
+      border: 2px solid blue;
+    }
+    .tower-menu {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #f2f2f2;
+      padding: 5px;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      width: 100px;
+      font-size: 12px;
+    }
+    .tower-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .tower-cost {
+      font-weight: bold;
+      color: green;
+    }
+    .paused-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      color: white;
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
+  <!-- Your tower defense game content will go here -->
+  <div id="game-container">
+    <!-- The grid where the towers and enemies will be placed -->
+  </div>
+
+  <script>
+    // Tower objects
+    const towers = [
+      { name: 'tower1', icon: 'fas fa-cog', cost: 50, range: 3, power: 25, cooldown: 1000, rotationSpeed: 90, attackEffect: '💥', specialAbility: 'Stun', abilityCooldown: 8000 },
+      { name: 'tower2', icon: 'fas fa-gem', cost: 75, range: 2, power: 50, cooldown: 1500, rotationSpeed: 60, attackEffect: '🔥', specialAbility: 'Slow', abilityCooldown: 10000 },
+      { name: 'tower3', icon: 'fas fa-bolt', cost: 100, range: 1, power: 100, cooldown: 2000, rotationSpeed: 30, attackEffect: '🌪️', specialAbility: 'Poison', abilityCooldown: 12000 },
+      // Additional towers with different abilities
+      { name: 'tower4', icon: 'fas fa-fire', cost: 80, range: 2, power: 40, cooldown: 1200, rotationSpeed: 70, attackEffect: '🔥', specialAbility: 'Burn', abilityCooldown: 10000 },
+      { name: 'tower5', icon: 'fas fa-leaf', cost: 90, range: 3, power: 30, cooldown: 800, rotationSpeed: 80, attackEffect: '🍃', specialAbility: 'Heal', abilityCooldown: 15000 },
+      // Add more towers if needed
+    ];
+
+    // Enemy objects
+    const enemies = [
+      { name: 'enemy1', health: 100, speed: 1, resistances: { '🔥': 0.5, '💥': 1, '🍃': 2 } },
+      { name: 'enemy2', health: 200, speed: 0.5, resistances: { '🔥': 1, '💥': 2, '🍃': 0.5 } },
+      // Additional enemy types with different resistances
+      { name: 'enemy3', health: 150, speed: 1, resistances: { '🔥': 1, '💥': 0.5, '🍃': 2 } },
+      { name: 'enemy4', health: 300, speed: 0.7, resistances: { '🔥': 2, '💥': 1, '🍃': 0.5 } },
+      // Add more enemies if needed
+    ];
+
+    // Enemy waves
+    const enemyWaves = [
+      [{ type: 0, count: 5 }, { type: 1, count: 10 }],
+      [{ type: 0, count: 10 }, { type: 1, count: 15 }],
+      // Additional waves with different enemy compositions
+      [{ type: 2, count: 8 }, { type: 3, count: 12 }],
+      [{ type: 1, count: 20 }, { type: 2, count: 10 }, { type: 3, count: 8 }],
+      // Add more waves if needed
+    ];
+
+    // Grid size and cell information
+    const gridSize = { rows: 5, cols: 8 };
+    const cellSize = 80; // Change the cell size according to your needs
+
+    // Game state
+    const gameGrid = Array(gridSize.rows).fill().map(() => Array(gridSize.cols).fill(null));
+    const enemyPath = [[0, 0], [0, 1], [1, 1], [1, 2], [2, 2], [2, 3], [3, 3], [3, 4], [4, 4]]; // Define the enemy path here
+    let playerMoney = 200;
+    let playerHealth = 100;
+    let waveNumber = 0;
+    let isPaused = false;
+    let towerSellCooldown = 5000; // 5 seconds sell cooldown
+    const towerLimit = 10; // Maximum number of towers allowed
+    const upgradeMultiplier = 1.5; // Tower upgrade power multiplier
+    const sellRefundPercentage = 0.8; // Tower sell refund percentage
+    let endlessMode = false;
+    let endlessWaveInterval = 15000; // Interval between waves in endless mode
+
+    function createCell(row, col) {
+      const cell = document.createElement('div');
+      cell.className = 'grid-cell';
+      cell.style.width = cell.style.height = `${cellSize}px`;
+      cell.addEventListener('click', () => handleCellClick(row, col));
+      return cell;
+    }
+
+    function renderGrid() {
+      const container = document.getElementById('game-container');
+      container.innerHTML = ''; // Clear existing content
+
+      for (let row = 0; row < gridSize.rows; row++) {
+        for (let col = 0; col < gridSize.cols; col++) {
+          const cell = createCell(row, col);
+          container.appendChild(cell);
+        }
+      }
+    }
+
+    function placeTower(row, col) {
+      if (!gameGrid[row][col] && gameGrid.flat().filter(Boolean).length < towerLimit) {
+        // Check if player has enough money to buy a tower
+        const selectedTower = towers[0]; // Change this to let the player choose a tower
+        if (playerMoney >= selectedTower.cost) {
+          const towerElement = document.createElement('div');
+          towerElement.className = 'tower';
+          towerElement.innerHTML = `<i class="${selectedTower.icon} tower-icon"></i>`;
+          document.querySelector(`#game-container .grid-cell:nth-child(${row * gridSize.cols + col + 1})`).appendChild(towerElement);
+          gameGrid[row][col] = { tower: selectedTower, level: 1, cooldownEndTime: 0, rotation: 0, sellCooldownEndTime: 0 };
+          playerMoney -= selectedTower.cost;
+          console.log(`Tower ${selectedTower.name} placed at (${row}, ${col})`);
+        } else {
+          console.log("Not enough money to buy this tower.");
+        }
+      } else if (gameGrid[row][col] && gameGrid[row][col].tower && gameGrid[row][col].sellCooldownEndTime <= Date.now()) {
+        sellTower(row, col); // Sell the tower if clicked during sell cooldown
+      } else {
+        console.log("Cell already occupied by a tower or maximum tower limit reached.");
+      }
+    }
+
+    function upgradeTower(row, col) {
+      const tower = gameGrid[row][col].tower;
+      const upgradeCost = tower.cost * gameGrid[row][col].level * 0.5;
+      if (playerMoney >= upgradeCost) {
+        gameGrid[row][col].level++;
+        playerMoney -= upgradeCost;
+        tower.power *= upgradeMultiplier; // Increase tower power on upgrade
+        tower.range += 1; // Increase tower range on upgrade
+        console.log(`Tower at (${row}, ${col}) upgraded to level ${gameGrid[row][col].level}`);
+      } else {
+        console.log("Not enough money to upgrade this tower.");
+      }
+    }
+
+    function sellTower(row, col) {
+      const tower = gameGrid[row][col].tower;
+      const currentTime = Date.now();
+      const timeSinceLastSell = currentTime - gameGrid[row][col].sellCooldownEndTime;
+      if (timeSinceLastSell >= towerSellCooldown) {
+        playerMoney += tower.cost * gameGrid[row][col].level * sellRefundPercentage; // Sell tower for a partial refund
+        gameGrid[row][col] = null;
+        console.log(`Tower at (${row}, ${col}) sold.`);
+      } else {
+        console.log("Tower can't be sold yet. Cooldown remaining:", (towerSellCooldown - timeSinceLastSell) / 1000, "seconds.");
+      }
+    }
+
+    function handleCellClick(row, col) {
+      hideTowerRange();
+      const cellContent = gameGrid[row][col];
+      if (!cellContent) {
+        placeTower(row, col);
+      } else if (cellContent.tower) {
+        // Show tower upgrade and sell options
+        const upgradeCost = cellContent.tower.cost * cellContent.level * 0.5;
+        const sellPrice = cellContent.tower.cost * cellContent.level * sellRefundPercentage;
+        console.log(`Tower at (${row}, ${col}). Level: ${cellContent.level}. Upgrade Cost: ${upgradeCost}. Sell Price: ${sellPrice}`);
+        handleTowerClick(row, col);
+      }
+    }
+
+    function startWave() {
+      if (isPaused) return;
+      
+      if (waveNumber >= enemyWaves.length) {
+        if (endlessMode) {
+          setTimeout(startWave, endlessWaveInterval);
+          endlessWaveInterval = Math.max(1000, endlessWaveInterval - 100); // Increase wave frequency in endless mode
+        } else {
+          console.log("Congratulations! You've completed all waves.");
+          // Implement victory conditions or other game-ending logic here
+          return;
+        }
+      }
+
+      const currentWave = enemyWaves[waveNumber];
+      let enemiesRemaining = currentWave.reduce((acc, wave) => acc + wave.count, 0);
+      let currentPosition = 0;
+
+      function spawnEnemy(enemyType) {
+        const enemy = enemies[enemyType];
+        const enemyElement = document.createElement('div');
+        enemyElement.className = 'enemy';
+        const healthBar = document.createElement('div');
+        healthBar.className = 'health-bar';
+        enemyElement.appendChild(healthBar);
+        document.querySelector(`#game-container .grid-cell:nth-child(${enemyPath[0][0] * gridSize.cols + enemyPath[0][1] + 1})`).appendChild(enemyElement);
+
+        let health = enemy.health;
+
+        const moveEnemy = () => {
+          const [row, col] = enemyPath[currentPosition];
+          const currentCell = document.querySelector(`#game-container .grid-cell:nth-child(${row * gridSize.cols + col + 1})`);
+          currentCell.appendChild(enemyElement);
+
+          if (currentPosition === enemyPath.length - 1) {
+            playerHealth -= enemy.health;
+            if (playerHealth <= 0) {
+              console.log("Game Over! You lost all your health.");
+              // Implement game over conditions or other game-ending logic here
+              return;
+            }
+            console.log(`Enemy reached the end. Player Health: ${playerHealth}`);
+            enemyElement.remove();
+          } else {
+            currentPosition++;
+            setTimeout(moveEnemy, 1000 / enemy.speed);
+          }
+        };
+
+        moveEnemy();
+      }
+
+      for (const wave of currentWave) {
+        for (let i = 0; i < wave.count; i++) {
+          setTimeout(() => {
+            spawnEnemy(wave.type);
+            enemiesRemaining--;
+            if (enemiesRemaining === 0) {
+              waveNumber++;
+            }
+          }, 2000 * i);
+        }
+      }
+    }
+
+    function attackEnemy(towerRow, towerCol, targetRow, targetCol) {
+      const tower = gameGrid[towerRow][towerCol].tower;
+      const enemyElement = document.querySelector(`#game-container .grid-cell:nth-child(${targetRow * gridSize.cols + targetCol + 1}) .enemy`);
+      if (enemyElement) {
+        const enemy = enemies[enemyWaves[waveNumber][0].type];
+        const enemyHealth = enemy.health;
+        const attackPower = tower.power;
+        const attackEffect = tower.attackEffect;
+        const updatedHealth = enemyHealth - attackPower;
+        if (updatedHealth <= 0) {
+          enemyElement.remove();
+          playerMoney += 20; // Money reward for killing an enemy
+        } else {
+          enemyElement.querySelector('.health-bar').style.width = `${(updatedHealth / enemyHealth) * 100}%`;
+        }
+        console.log(`Tower attacked enemy (${targetRow}, ${targetCol}) with ${attackEffect}. Enemy health: ${updatedHealth}`);
+      }
+    }
+
+    function useSpecialAbility(row, col) {
+      const tower = gameGrid[row][col].tower;
+      const currentTime = Date.now();
+      if (currentTime >= tower.abilityCooldown + gameGrid[row][col].cooldownEndTime) {
+        gameGrid[row][col].cooldownEndTime = currentTime + tower.cooldown;
+        console.log(`Tower at (${row}, ${col}) used special ability: ${tower.specialAbility}`);
+        // Implement the special ability logic based on the tower's specialAbility property
+      } else {
+        console.log("Ability on cooldown. Please wait.");
+      }
+    }
+
+    function rotateTower(row, col, targetRow, targetCol) {
+      const tower = gameGrid[row][col].tower;
+      const dx = targetCol - col;
+      const dy = targetRow - row;
+      const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+      gameGrid[row][col].rotation = angle;
+    }
+
+    function handleTowerClick(row, col) {
+      const selectedTower = gameGrid[row][col].tower;
+      const towerElements = document.querySelectorAll('.grid-cell .tower');
+      towerElements.forEach((towerElement) => {
+        towerElement.classList.remove('tower-selected');
+      });
+      document.querySelector(`#game-container .grid-cell:nth-child(${row * gridSize.cols + col + 1}) .tower`).classList.add('tower-selected');
+      console.log(`Selected Tower: ${selectedTower.name} - Level: ${gameGrid[row][col].level}`);
+      console.log(`Power: ${selectedTower.power}, Range: ${selectedTower.range}, Cooldown: ${selectedTower.cooldown} ms`);
+      showTowerRange(row, col, selectedTower.range);
+    }
+
+    function showTowerRange(row, col, range) {
+      const towerRange = document.createElement('div');
+      towerRange.className = 'tower-range';
+      towerRange.style.width = towerRange.style.height = `${(range * 2 + 1) * cellSize}px`;
+      towerRange.style.left = towerRange.style.top = `${(cellSize - (range * cellSize))}px`;
+      document.querySelector(`#game-container .grid-cell:nth-child(${row * gridSize.cols + col + 1})`).appendChild(towerRange);
+    }
+
+    function hideTowerRange() {
+      const towerRanges = document.querySelectorAll('.tower-range');
+      towerRanges.forEach((rangeElement) => {
+        rangeElement.remove();
+      });
+    }
+
+    function togglePause() {
+      isPaused = !isPaused;
+      console.log(isPaused ? "Game Paused" : "Game Resumed");
+      if (isPaused) {
+        const pauseOverlay = document.createElement('div');
+        pauseOverlay.className = 'paused-overlay';
+        pauseOverlay.innerText = 'PAUSED';
+        document.body.appendChild(pauseOverlay);
+      } else {
+        const pauseOverlay = document.querySelector('.paused-overlay');
+        pauseOverlay.remove();
+      }
+    }
+
+    function toggleEndlessMode() {
+      endlessMode = !endlessMode;
+      console.log(endlessMode ? "Endless Mode Enabled" : "Endless Mode Disabled");
+      if (endlessMode) {
+        startWave();
+      }
+    }
+
+    function researchTower() {
+      // Implement tower research logic here
+      // This could involve unlocking new towers or upgrading existing ones
+      console.log("Tower Research completed. New tower or upgrade unlocked!");
+    }
+
+    // Call this function to initialize the game grid
+    renderGrid();
+    setInterval(startWave, 10000); // Start a new wave every 10 seconds
+    setInterval(() => {
+      // Tower attack logic
+      for (let row = 0; row < gridSize.rows; row++) {
+        for (let col = 0; col < gridSize.cols; col++) {
+          if (gameGrid[row][col] && gameGrid[row][col].tower && gameGrid[row][col].cooldownEndTime <= Date.now()) {
+            const tower = gameGrid[row][col].tower;
+            for (let i = row - tower.range; i <= row + tower.range; i++) {
+              for (let j = col - tower.range; j <= col + tower.range; j++) {
+                if (i >= 0 && i < gridSize.rows && j >= 0 && j < gridSize.cols && gameGrid[i][j] && gameGrid[i][j].tower) {
+                  attackEnemy(row, col, i, j);
+                }
+              }
+            }
+            gameGrid[row][col].cooldownEndTime = Date.now() + tower.cooldown;
+          }
+        }
+      }
+    }, 500);
+  </script>
+</body>
+</html>
