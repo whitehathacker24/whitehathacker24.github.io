@@ -376,24 +376,6 @@
     // Call this function to initialize the game grid
     renderGrid();
     setInterval(startWave, 10000); // Start a new wave every 10 seconds
-    setInterval(() => {
-      // Tower attack logic
-      for (let row = 0; row < gridSize.rows; row++) {
-        for (let col = 0; col < gridSize.cols; col++) {
-          if (gameGrid[row][col] && gameGrid[row][col].tower && gameGrid[row][col].cooldownEndTime <= Date.now()) {
-            const tower = gameGrid[row][col].tower;
-            for (let i = row - tower.range; i <= row + tower.range; i++) {
-              for (let j = col - tower.range; j <= col + tower.range; j++) {
-                if (i >= 0 && i < gridSize.rows && j >= 0 && j < gridSize.cols && gameGrid[i][j] && gameGrid[i][j].tower) {
-                  attackEnemy(row, col, i, j);
-                }
-              }
-            }
-            gameGrid[row][col].cooldownEndTime = Date.now() + tower.cooldown;
-          }
-        }
-      }
-    }, 500);
   </script>
 </body>
 </html>
