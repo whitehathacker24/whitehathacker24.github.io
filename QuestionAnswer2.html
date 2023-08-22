@@ -19,7 +19,9 @@
   <div id="history"></div>
 
   <h2>Bot's Answer</h2>
-  <div id="botAnswer"></div>
+  <div id="botAnswer">
+    <p id="botResponse"></p>
+  </div>
 
   <!-- Add the "Recognize Spanish Words" button here -->
   <button id="recognizeButton">Recognize Spanish Words</button>
@@ -103,13 +105,13 @@
         deleteButton.addEventListener('click', () => handleDelete(index));
         qaEntry.textContent = `${index + 1}. Question: ${question} - Answer: ${answer}`;
         qaEntry.appendChild(deleteButton);
-
+        
         // Add "Edit" button for editing entries
         const editButton = document.createElement('button');
         editButton.textContent = 'Edit';
         editButton.addEventListener('click', () => handleEdit(index));
         qaEntry.appendChild(editButton);
-
+        
         historyDiv.appendChild(qaEntry);
       });
     }
@@ -118,7 +120,7 @@
     function handleEdit(index) {
       const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
       const entry = qaHistory[index];
-
+      
       // Populate the form fields with existing data
       document.getElementById('question').value = entry.question;
       document.getElementById('answer').value = entry.answer;
@@ -183,12 +185,12 @@
       const recognizedWords = words.filter(word => isSpanishWord(word));
 
       // Display recognized Spanish words and their English translations
-      const botAnswerDiv = document.getElementById('botAnswer');
+      const botResponse = document.getElementById('botResponse');
       if (recognizedWords.length > 0) {
         const translations = recognizedWords.map(word => `${word} translates to ${translateToEnglish(word)}`);
-        botAnswerDiv.textContent = translations.join(', ');
+        botResponse.textContent = translations.join(', ');
       } else {
-        botAnswerDiv.textContent = `No recognized Spanish words found.`;
+        botResponse.textContent = `No recognized Spanish words found.`;
       }
     }
 
