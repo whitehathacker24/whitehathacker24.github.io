@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Q&A Form</title>
+</head>
+<body>
+  <h1>Q&A Form</h1>
+  <form id="qaForm">
+    <label for="question">Question:</label>
+    <input type="text" id="question" required>
+    <br>
+    <label for="answer">Answer:</label>
+    <input type="text" id="answer">
+    <br>
+    <button type="submit">Submit</button>
+  </form>
+  <hr>
+  <h2>Q&A History</h2>
+  <div id="history"></div>
+
+  <h2>Bot's Answer</h2>
+  <div id="botAnswer"></div>
+
+  <script>
+    // Function to handle form submission
+    function handleSubmit(event) {
+      event.preventDefault();
+      const question = document.getElementById('question').value.toLowerCase();
+      let answer = document.getElementById('answer').value;
+
+      // Retrieve existing Q&A history from localStorage
+      const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
+
+      // If the answer is not provided, let the bot generate a response
+      if (!answer) {
+        answer = generateBotResponse(question);
+        document.getElementById('answer').value = answer;
+      }
+
+      // Store the lowercase version of the question in the Q&A history
+      qaHistory.push({ question: question, answer });
+
+      // Store the updated Q&A history in localStorage
+      localStorage.setItem('qaHistory', JSON.stringify(qaHistory));
+
+      // Reset the form
+      document.getElementById('qaForm').reset();
+
+      // Update the history display
+      updateHistory();
+    }
+
+    // Function to generate bot response
+    function generateBotResponse(question) {
+      // You can customize the bot's response generation here.
+      // For simplicity, let's just return a static response for demonstration purposes.
+      return "Bot-generated response for: " + question;
+    }
+
+    // Function to handle bot answering
+    function handleBotAnswer() {
+      const question = document.getElementById('question').value.toLowerCase();
+      const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
+      const botAnswerDiv = document.getElementById('botAnswer');
+
+      // Search for the lowercase version of the question in the Q&A history
+      const foundQA = qaHistory.find((qa) => qa.question === question);
+
+      if (foundQA) {
+        botAnswerDiv.textContent = `Bot's Answer: ${foundQA.answer}`;
+      } else {
+        botAnswerDiv.textContent = `Bot's Answer: Question not found in history.`;
+      }
+    }
+
+    // Function to handle delete button click
+    function handleDelete(index) {
+      const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
+      qaHistory.splice(index, 1); // Remove the entry at the specified index
+      localStorage.setItem('qaHistory', JSON.stringify(qaHistory));
+      updateHistory();
+    }
+
+    // Function to display Q&A history
+    function updateHistory() {
+      const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
+      const historyDiv = document.getElementById('history');
+
+      // Clear previous history
+      historyDiv.innerHTML = '';
+
+      // Display the Q&A history
+      qaHistory.forEach((qa, index) => {
+        const question = qa.question;
+        const answer = qa.answer;
+
+        const qaEntry = document.createElement('div');
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.addEventListener('click', () => handleDelete(index));
+        qaEntry.textContent = `${index + 1}. Question: ${question} - Answer: ${answer}`;
+        qaEntry.appendChild(deleteButton);
+        
+        // Add "Edit" button for editing entries
+        const editButton = document.createElement('button');
+        editButton.textContent = 'Edit';
+        editButton.addEventListener('click', () => handleEdit(index));
+        qaEntry.appendChild(editButton);
+        
+        historyDiv.appendChild(qaEntry);
+      });
+    }
+
+    // Function to handle editing an entry
+    function handleEdit(index) {
+      const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
+      const entry = qaHistory[index];
+      
+      // Populate the form fields with existing data
+      document.getElementById('question').value = entry.question;
+      document.getElementById('answer').value = entry.answer;
+
+      // Remove the edited entry from history temporarily
+      qaHistory.splice(index, 1);
+      localStorage.setItem('qaHistory', JSON.stringify(qaHistory));
+
+      // Update the history display
+      updateHistory();
+    }
+
+    // Function to clear Q&A history
+    function clearHistory() {
+      localStorage.removeItem('qaHistory');
+      updateHistory();
+    }
+
+    // Attach the form submission handler
+    const form = document.getElementById('qaForm');
+    form.addEventListener('submit', handleSubmit);
+
+    // Display initial history on page load
+    updateHistory();
+
+    // Display bot's answer on question input change
+    const questionInput = document.getElementById('question');
+    questionInput.addEventListener('input', handleBotAnswer);
+
+    // Attach the clear history button handler
+    const clearButton = document.createElement('button');
+    clearButton.textContent = 'Clear History';
+    clearButton.addEventListener('click', clearHistory);
+    document.body.insertBefore(clearButton, historyDiv);
+
+    // Function to provide English translation for a Spanish word
+    function translateToEnglish(spanishWord) {
+      const spanishToEnglish = {
+        'hola': 'hello',
+        'gracias': 'thank you',
+        // Add more translations here
+      };
+      return spanishToEnglish[spanishWord.toLowerCase()] || 'Translation not available';
+    }
+
+    // Function to check if a word is a recognizable Spanish word
+    function isSpanishWord(word) {
+      const spanishWords = [
+        'hola', 'gracias', 'adios', // Add more recognizable Spanish words here
+      ];
+      return spanishWords.includes(word.toLowerCase());
+    }
+
+    // Function to handle recognizing and translating Spanish words
+    function handleRecognizeSpanish() {
+      const question = document.getElementById('question').value;
+
+      // Split the question into words
+      const words = question.split(/\s|\.|\?|\!|\,|\;/); // Split by spaces and common punctuation
+
+      // Check each word for Spanish recognition
+      const recognizedWords = words.filter(word => isSpanishWord(word));
+
+      // Display recognized Spanish words and their English translations
+      const botAnswerDiv = document.getElementById('botAnswer');
+      if (recognizedWords.length > 0) {
+        const translations = recognizedWords.map(word => `${word} translates to ${translateToEnglish(word)}`);
+        botAnswerDiv.textContent = translations.join(', ');
+      } else {
+        botAnswerDiv.textContent = `No recognized Spanish words found.`;
+      }
+    }
+
+    // Attach the recognize Spanish button handler
+    const recognizeButton = document.createElement('button');
+    recognizeButton.textContent = 'Recognize Spanish Words';
+    recognizeButton.addEventListener('click', handleRecognizeSpanish);
+    document.body.insertBefore(recognizeButton, qaForm);
+
+  </script>
+</body>
+</html>
