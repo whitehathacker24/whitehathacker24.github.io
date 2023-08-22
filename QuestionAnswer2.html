@@ -18,13 +18,8 @@
   <h2>Q&A History</h2>
   <div id="history"></div>
 
-  <h2>Bot's Answer</h2>
-  <div id="botAnswer">
-    <p id="botResponse"></p>
-  </div>
-
-  <!-- Add the "Recognize Spanish Words" button here -->
-  <button id="recognizeButton">Recognize Spanish Words</button>
+  <h2>Bot's Response</h2>
+  <div id="botResponse"></div>
 
   <script>
     // Function to handle form submission
@@ -62,81 +57,33 @@
       return "Bot-generated response for: " + question;
     }
 
-    // Function to handle bot answering
-    function handleBotAnswer() {
-      const question = document.getElementById('question').value.toLowerCase();
-      const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
-      const botAnswerDiv = document.getElementById('botAnswer');
+    // ... (Previous code)
 
-      // Search for the lowercase version of the question in the Q&A history
-      const foundQA = qaHistory.find((qa) => qa.question === question);
+    // Function to handle recognizing and translating Spanish words
+    function handleRecognizeSpanish() {
+      const question = document.getElementById('question').value;
 
-      if (foundQA) {
-        botAnswerDiv.textContent = `Bot's Answer: ${foundQA.answer}`;
-      } else {
-        botAnswerDiv.textContent = `Bot's Answer: Question not found in history.`;
-      }
-    }
+      // Split the question into words
+      const words = question.split(/\s|\.|\?|\!|\,|\;/); // Split by spaces and common punctuation
 
-    // Function to handle delete button click
-    function handleDelete(index) {
-      const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
-      qaHistory.splice(index, 1); // Remove the entry at the specified index
-      localStorage.setItem('qaHistory', JSON.stringify(qaHistory));
-      updateHistory();
-    }
+      // Create an array to store recognized translations
+      const translations = [];
 
-    // Function to display Q&A history
-    function updateHistory() {
-      const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
-      const historyDiv = document.getElementById('history');
-
-      // Clear previous history
-      historyDiv.innerHTML = '';
-
-      // Display the Q&A history
-      qaHistory.forEach((qa, index) => {
-        const question = qa.question;
-        const answer = qa.answer;
-
-        const qaEntry = document.createElement('div');
-        const deleteButton = document.createElement('button');
-        deleteButton.textContent = 'Delete';
-        deleteButton.addEventListener('click', () => handleDelete(index));
-        qaEntry.textContent = `${index + 1}. Question: ${question} - Answer: ${answer}`;
-        qaEntry.appendChild(deleteButton);
-        
-        // Add "Edit" button for editing entries
-        const editButton = document.createElement('button');
-        editButton.textContent = 'Edit';
-        editButton.addEventListener('click', () => handleEdit(index));
-        qaEntry.appendChild(editButton);
-        
-        historyDiv.appendChild(qaEntry);
+      // Check each word for Spanish recognition and add translations
+      words.forEach(word => {
+        const englishTranslation = translateToEnglish(word);
+        if (englishTranslation !== 'Translation not available') {
+          translations.push(`${word} translates to ${englishTranslation}`);
+        }
       });
-    }
 
-    // Function to handle editing an entry
-    function handleEdit(index) {
-      const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
-      const entry = qaHistory[index];
-      
-      // Populate the form fields with existing data
-      document.getElementById('question').value = entry.question;
-      document.getElementById('answer').value = entry.answer;
-
-      // Remove the edited entry from history temporarily
-      qaHistory.splice(index, 1);
-      localStorage.setItem('qaHistory', JSON.stringify(qaHistory));
-
-      // Update the history display
-      updateHistory();
-    }
-
-    // Function to clear Q&A history
-    function clearHistory() {
-      localStorage.removeItem('qaHistory');
-      updateHistory();
+      // Display recognized Spanish words and their English translations
+      const botResponseDiv = document.getElementById('botResponse');
+      if (translations.length > 0) {
+        botResponseDiv.textContent = translations.join(', ');
+      } else {
+        botResponseDiv.textContent = `No recognized Spanish words found.`;
+      }
     }
 
     // Attach the form submission handler
@@ -150,54 +97,8 @@
     const questionInput = document.getElementById('question');
     questionInput.addEventListener('input', handleBotAnswer);
 
-    // Attach the clear history button handler
-    const clearButton = document.createElement('button');
-    clearButton.textContent = 'Clear History';
-    clearButton.addEventListener('click', clearHistory);
-    document.body.insertBefore(clearButton, historyDiv);
-
-    // Function to provide English translation for a Spanish word
-    function translateToEnglish(spanishWord) {
-      const spanishToEnglish = {
-        'hola': 'hello',
-        'gracias': 'thank you',
-        // Add more translations here
-      };
-      return spanishToEnglish[spanishWord.toLowerCase()] || 'Translation not available';
-    }
-
-    // Function to check if a word is a recognizable Spanish word
-    function isSpanishWord(word) {
-      const spanishWords = [
-        'hola', 'gracias', 'adios', // Add more recognizable Spanish words here
-      ];
-      return spanishWords.includes(word.toLowerCase());
-    }
-
-    // Function to handle recognizing and translating Spanish words
-    function handleRecognizeSpanish() {
-      const question = document.getElementById('question').value;
-
-      // Split the question into words
-      const words = question.split(/\s|\.|\?|\!|\,|\;/); // Split by spaces and common punctuation
-
-      // Check each word for Spanish recognition
-      const recognizedWords = words.filter(word => isSpanishWord(word));
-
-      // Display recognized Spanish words and their English translations
-      const botResponse = document.getElementById('botResponse');
-      if (recognizedWords.length > 0) {
-        const translations = recognizedWords.map(word => `${word} translates to ${translateToEnglish(word)}`);
-        botResponse.textContent = translations.join(', ');
-      } else {
-        botResponse.textContent = `No recognized Spanish words found.`;
-      }
-    }
-
-    // Attach the recognize Spanish button handler
-    const recognizeButton = document.getElementById('recognizeButton');
-    recognizeButton.addEventListener('click', handleRecognizeSpanish);
-
+    // Display recognized Spanish words and translations
+    handleRecognizeSpanish();
   </script>
 </body>
 </html>
