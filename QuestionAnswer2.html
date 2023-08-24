@@ -8,97 +8,225 @@
   <form id="qaForm">
     <label for="question">Question:</label>
     <input type="text" id="question" required>
+    <div id="suggestions"></div>
     <br>
     <label for="answer">Answer:</label>
     <input type="text" id="answer">
     <br>
     <button type="submit">Submit</button>
+    <button id="clearButton">Clear History</button>
   </form>
   <hr>
   <h2>Q&A History</h2>
+  <label for="search">Search:</label>
+  <input type="text" id="search" placeholder="Search by keyword">
+  <label for="sort">Sort by:</label>
+  <select id="sort">
+    <option value="timestamp">Timestamp</option>
+    <option value="votes">Votes</option>
+  </select>
   <div id="history"></div>
 
-  <h2>Bot's Response</h2>
-  <div id="botResponse"></div>
+  <h2>Bot's Answer</h2>
+  <div id="botAnswer"></div>
 
   <script>
-    // Function to handle form submission
     function handleSubmit(event) {
       event.preventDefault();
       const question = document.getElementById('question').value.toLowerCase();
       let answer = document.getElementById('answer').value;
 
-      // Retrieve existing Q&A history from localStorage
       const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
 
-      // If the answer is not provided, let the bot generate a response
       if (!answer) {
         answer = generateBotResponse(question);
         document.getElementById('answer').value = answer;
       }
 
-      // Store the lowercase version of the question in the Q&A history
       qaHistory.push({ question: question, answer });
-
-      // Store the updated Q&A history in localStorage
       localStorage.setItem('qaHistory', JSON.stringify(qaHistory));
 
-      // Reset the form
       document.getElementById('qaForm').reset();
-
-      // Update the history display
       updateHistory();
     }
 
-    // Function to generate bot response
     function generateBotResponse(question) {
-      // You can customize the bot's response generation here.
-      // For simplicity, let's just return a static response for demonstration purposes.
       return "Bot-generated response for: " + question;
     }
 
-    // ... (Previous code)
+    function handleBotAnswer() {
+      const question = document.getElementById('question').value.toLowerCase();
+      const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
+      const botAnswerDiv = document.getElementById('botAnswer');
+      let foundQA = null;
 
-    // Function to handle recognizing and translating Spanish words
-    function handleRecognizeSpanish() {
-      const question = document.getElementById('question').value;
+      foundQA = qaHistory.find((qa) => qa.question === question);
 
-      // Split the question into words
-      const words = question.split(/\s|\.|\?|\!|\,|\;/); // Split by spaces and common punctuation
+      if (!foundQA) {
+        foundQA = hardcodedQA.find((qa) => qa.question === question);
+      }
 
-      // Create an array to store recognized translations
-      const translations = [];
-
-      // Check each word for Spanish recognition and add translations
-      words.forEach(word => {
-        const englishTranslation = translateToEnglish(word);
-        if (englishTranslation !== 'Translation not available') {
-          translations.push(`${word} translates to ${englishTranslation}`);
-        }
-      });
-
-      // Display recognized Spanish words and their English translations
-      const botResponseDiv = document.getElementById('botResponse');
-      if (translations.length > 0) {
-        botResponseDiv.textContent = translations.join(', ');
+      if (foundQA) {
+        botAnswerDiv.textContent = `Bot's Answer: ${foundQA.answer}`;
       } else {
-        botResponseDiv.textContent = `No recognized Spanish words found.`;
+        botAnswerDiv.textContent = `Bot's Answer: Question not found.`;
       }
     }
 
-    // Attach the form submission handler
+    function handleDelete(index) {
+      const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
+      qaHistory.splice(index, 1);
+      localStorage.setItem('qaHistory', JSON.stringify(qaHistory));
+      updateHistory();
+    }
+
+    function handleEdit(index) {
+      const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
+      const editedAnswer = prompt('Edit the answer:', qaHistory[index].answer);
+
+      if (editedAnswer !== null) {
+        qaHistory[index].answer = editedAnswer;
+        localStorage.setItem('qaHistory', JSON.stringify(qaHistory));
+        updateHistory();
+      }
+    }
+
+    function clearHistory() {
+      localStorage.removeItem('qaHistory');
+      updateHistory();
+    }
+
+    function upvote(index) {
+      const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
+      qaHistory[index].votes = (qaHistory[index].votes || 0) + 1;
+      localStorage.setItem('qaHistory', JSON.stringify(qaHistory));
+      updateHistory();
+    }
+
+    function downvote(index) {
+      const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
+      qaHistory[index].votes = (qaHistory[index].votes || 0) - 1;
+      localStorage.setItem('qaHistory', JSON.stringify(qaHistory));
+      updateHistory();
+    }
+
+    function askFeedback(index) {
+      const feedback = confirm('Did you find this Q&A helpful?');
+      if (feedback) {
+        const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
+        qaHistory[index].helpful = (qaHistory[index].helpful || 0) + 1;
+        localStorage.setItem('qaHistory', JSON.stringify(qaHistory));
+        updateHistory();
+      }
+    }
+
+    function handleSort() {
+      const sortOption = document.getElementById('sort').value;
+      const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
+
+      if (sortOption === 'votes') {
+        qaHistory.sort((a, b) => (b.votes || 0) - (a.votes || 0));
+      } else if (sortOption === 'timestamp') {
+        qaHistory.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      }
+
+      localStorage.setItem('qaHistory', JSON.stringify(qaHistory));
+      updateHistory();
+    }
+
+    function updateHistory() {
+      const qaHistory = JSON.parse(localStorage.getItem('qaHistory')) || [];
+      const historyDiv = document.getElementById('history');
+      const searchInput = document.getElementById('search').value.toLowerCase();
+      const sortSelect = document.getElementById('sort');
+
+      historyDiv.innerHTML = '';
+
+      qaHistory.forEach((qa, index) => {
+        const question = qa.question;
+        const answer = qa.answer;
+        const timestamp = new Date().toLocaleString();
+        const votes = qa.votes || 0;
+        const helpful = qa.helpful || 0;
+
+        if (question.includes(searchInput) || answer.includes(searchInput)) {
+          const qaEntry = document.createElement('div');
+
+          const deleteButton = document.createElement('button');
+          deleteButton.textContent = 'Delete';
+          deleteButton.addEventListener('click', () => handleDelete(index));
+
+          const editButton = document.createElement('button');
+          editButton.textContent = 'Edit';
+          editButton.addEventListener('click', () => handleEdit(index));
+
+          const upvoteButton = document.createElement('button');
+          upvoteButton.textContent = 'Upvote';
+          upvoteButton.addEventListener('click', () => upvote(index));
+
+          const downvoteButton = document.createElement('button');
+          downvoteButton.textContent = 'Downvote';
+          downvoteButton.addEventListener('click', () => downvote(index));
+
+          const helpfulButton = document.createElement('button');
+          helpfulButton.textContent = 'Did you find this helpful?';
+          helpfulButton.addEventListener('click', () => askFeedback(index));
+
+          const voteCount = document.createElement('span');
+          voteCount.textContent = `Votes: ${votes}`;
+
+          const helpfulCount = document.createElement('span');
+          helpfulCount.textContent = `Helpful: ${helpful}`;
+
+          qaEntry.textContent = `${index + 1}. Question: ${question} - Answer: ${answer} - Timestamp: ${timestamp}`;
+          qaEntry.appendChild(deleteButton);
+          qaEntry.appendChild(editButton);
+          qaEntry.appendChild(upvoteButton);
+          qaEntry.appendChild(downvoteButton);
+          qaEntry.appendChild(voteCount);
+          qaEntry.appendChild(helpfulButton);
+          qaEntry.appendChild(helpfulCount);
+
+          historyDiv.appendChild(qaEntry);
+        }
+      });
+    }
+
     const form = document.getElementById('qaForm');
     form.addEventListener('submit', handleSubmit);
 
-    // Display initial history on page load
+    const clearButton = document.getElementById('clearButton');
+    clearButton.addEventListener('click', clearHistory);
+
+    const sortSelect = document.getElementById('sort');
+    sortSelect.addEventListener('change', handleSort);
+
     updateHistory();
 
-    // Display bot's answer on question input change
     const questionInput = document.getElementById('question');
     questionInput.addEventListener('input', handleBotAnswer);
 
-    // Display recognized Spanish words and translations
-    handleRecognizeSpanish();
+    const suggestionsList = document.getElementById('suggestions');
+
+    questionInput.addEventListener('input', () => {
+      const inputText = questionInput.value.toLowerCase();
+      const matchingQuestions = qaHistory.concat(hardcodedQA).filter(qa => qa.question.includes(inputText));
+      suggestionsList.innerHTML = '';
+      matchingQuestions.forEach(qa => {
+        const suggestion = document.createElement('div');
+        suggestion.textContent = qa.question;
+        suggestion.addEventListener('click', () => {
+          questionInput.value = qa.question;
+          handleBotAnswer();
+        });
+        suggestionsList.appendChild(suggestion);
+      });
+    });
+
+    const hardcodedQA = [
+      { question: "who made you?", answer: "I was created by OpenAI." },
+      // Add more hardcoded questions and answers here
+    ];
   </script>
 </body>
 </html>
