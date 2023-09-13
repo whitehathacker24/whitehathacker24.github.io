@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Essay Writer</title>
+    <style>
+        textarea {
+            width: 100%;
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Essay Writer</h1>
+    <label for="essayLength">Essay Length:</label>
+    <input type="range" id="essayLength" min="50" max="500" step="50" value="200" onchange="updateEssayLength()">
+    <span id="essayLengthValue">200 words</span><br>
+    <textarea id="essayContent"></textarea>
+    <button onclick="generateRandomEssay()">Generate Random Essay</button>
+    <button onclick="saveWord()">Save Word</button>
+    <button onclick="likeEssay()">Like Essay</button>
+    <button onclick="dislikeEssay()">Dislike Essay</button>
+    <button onclick="analyzeLikedEssays()">Analyze Liked Essays</button>
+    <button onclick="handleMistakes()">Highlight Mistake</button>
+    <h2>Word Storage</h2>
+    <label for="wordInput">Enter a word:</label>
+    <input type="text" id="wordInput">
+    <button onclick="saveWord()">Save Word</button>
+    <ul id="wordList"></ul>
+
+    <script>
+        var likedEssay = "";
+        var dislikedEssays = [];
+
+        function saveWord() {
+            var word = document.getElementById("wordInput").value;
+            if (word) {
+                var storedWords = JSON.parse(localStorage.getItem("words")) || [];
+                storedWords.push(word);
+                localStorage.setItem("words", JSON.stringify(storedWords));
+                updateWordList();
+                document.getElementById("wordInput").value = "";
+            }
+        }
+
+        function updateWordList() {
+            var wordListElement = document.getElementById("wordList");
+            wordListElement.innerHTML = "";
+            var storedWords = JSON.parse(localStorage.getItem("words")) || [];
+            storedWords.forEach(function(word) {
+                var listItem = document.createElement("li");
+                listItem.textContent = word;
+                wordListElement.appendChild(listItem);
+            });
+        }
+
+        function generateRandomEssay() {
+            var storedWords = JSON.parse(localStorage.getItem("words")) || [];
+            var essayLength = document.getElementById("essayLength").value;
+            var essayContent = "";
+
+            for (var i = 0; i < essayLength / 10; i++) {
+                var randomIndex = Math.floor(Math.random() * storedWords.length);
+                var randomWord = storedWords[randomIndex];
+                essayContent += randomWord + " ";
+            }
+
+            document.getElementById("essayContent").value = essayContent.trim();
+            likedEssay = essayContent.trim();
+            analyzeLikedEssays();
+        }
+
+        function likeEssay() {
+            if (likedEssay) {
+                var storedEssays = JSON.parse(localStorage.getItem("likedEssays")) || [];
+                storedEssays.push(likedEssay);
+                localStorage.setItem("likedEssays", JSON.stringify(storedEssays));
+                alert("Essay liked! It will be saved for future reference.");
+            } else {
+                alert("No essay generated yet to like.");
+            }
+        }
+
+        function dislikeEssay() {
+            if (likedEssay) {
+                dislikedEssays.push(likedEssay);
+                alert("Essay disliked! It will be avoided in future essays.");
+            } else {
+                alert("No essay generated yet to dislike.");
+            }
+        }
+
+        function updateEssayLength() {
+            var lengthSlider = document.getElementById("essayLength");
+            var lengthValue = document.getElementById("essayLengthValue");
+            lengthValue.textContent = lengthSlider.value + " words";
+        }
+
+        function analyzeLikedEssays() {
+            var likedEssays = JSON.parse(localStorage.getItem("likedEssays")) || [];
+            var storedMistakes = JSON.parse(localStorage.getItem("mistakes")) || [];
+            var storedGrammarCorrections = JSON.parse(localStorage.getItem("grammarCorrections")) || [];
+
+            if (likedEssays.length === 0) {
+                alert("No liked essays to analyze.");
+                return;
+            }
+
+            // Initialize mistake and grammar correction counters
+            var mistakeCount = {};
+            var grammarCorrectionCount = {};
+
+            likedEssays.forEach(function(essay) {
+                storedMistakes.forEach(function(mistake) {
+                    if (essay.includes(mistake.text)) {
+                        mistakeCount[mistake.text] = (mistakeCount[mistake.text] || 0) + 1;
+                    }
+                });
+
+                storedGrammarCorrections.forEach(function(correction) {
+                    if (essay.includes(correction.mistake)) {
+                        grammarCorrectionCount[correction.mistake] = (grammarCorrectionCount[correction.mistake] || 0) + 1;
+                    }
+                });
+            });
+
+            // Identify common mistakes and corrections
+            var commonMistakes = Object.keys(mistakeCount).sort(function(a, b) {
+                return mistakeCount[b] - mistakeCount[a];
+            }).slice(0, 5);
+
+            var commonCorrections = Object.keys(grammarCorrectionCount).sort(function(a, b) {
+                return grammarCorrectionCount[b] - grammarCorrectionCount[a];
+            }).slice(0, 5);
+
+            var analysisResult = `
+                Total Liked Essays: ${likedEssays.length}<br>
+                Common Mistakes: ${commonMistakes.join(", ")}<br>
+                Common Grammar Corrections: ${commonCorrections.join(", ")}
+            `;
+
+            document.getElementById("analysisResult").innerHTML = analysisResult;
+        }
+
+        function handleMistakes() {
+            var textarea = document.getElementById("essayContent");
+            var selectedText = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd);
+            var mistakeType = prompt("What type of mistake is this? (e.g., spelling, grammar, punctuation)");
+
+            if (mistakeType && mistakeType.trim() !== "") {
+                var storedMistakes = JSON.parse(localStorage.getItem("mistakes")) || [];
+                storedMistakes.push({ text: selectedText, type: mistakeType });
+                localStorage.setItem("mistakes", JSON.stringify(storedMistakes));
+                alert("Mistake highlighted and type recorded.");
+
+                // Optional: Prompt for a correction and store it
+                var correction = prompt("Provide a correction for this mistake:");
+                if (correction && correction.trim() !== "") {
+                    storeCorrectedGrammar(selectedText, correction);
+                }
+
+                // Ensure the bot doesn't make the same mistake again
+                var grammarCorrections = JSON.parse(localStorage.getItem("grammarCorrections")) || [];
+                grammarCorrections.push({ mistake: selectedText, correction: correction });
+                localStorage.setItem("grammarCorrections", JSON.stringify(grammarCorrections));
+
+            } else {
+                alert("No mistake type provided or type is empty.");
+            }
+        }
+
+        function storeCorrectedGrammar(mistake, correction) {
+            var storedGrammar = JSON.parse(localStorage.getItem("grammarCorrections")) || [];
+            storedGrammar.push({ mistake: mistake, correction: correction });
+            localStorage.setItem("grammarCorrections", JSON.stringify(storedGrammar));
+        }
+    </script>
+
+    <h2>Analysis Result</h2>
+    <div id="analysisResult"></div>
+</body>
+</html>
