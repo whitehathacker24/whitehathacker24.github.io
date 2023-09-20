@@ -3,14 +3,14 @@
  <p id="display"></p>
     <button onclick="addGold()"
     <script>
+        var speed = 50;
         var i = 0; 
         var gold = 0;
         function start(){
          if (i < gold.length) {
-    	document.getElementById("demo").innerHTML += txt.charAt(i);
+    	document.getElementById("demo").innerHTML += gold.charAt(i);
     	i++;
     	setTimeout(start, speed);
-        document.getElementById("display").innerHTML = gold
         }
         function addGold(){
         document.getElementById("display".innerHTML = gold+=1;
