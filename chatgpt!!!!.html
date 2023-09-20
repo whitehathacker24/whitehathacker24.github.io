@@ -8,7 +8,7 @@
         }
     </style>
 </head>
-<body>
+<body onload="start()"></body>
     <div>
         <h1>GeeksforGeeks</h1>
         <h3>Click on the button to see image</h3>
@@ -23,8 +23,10 @@
     </button>
  <h1 id="gold"><h1>
     <script>
+         var gold = 0;
+        function start(){
         document.getElementById("display").innerHTML = "gold"
-        var gold =0;
+        }
         function show() {
             /* Access image by id and change
             the display property to block*/
