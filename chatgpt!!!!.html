@@ -7,27 +7,22 @@
 <h1> Gold script? idk</h1> 
     
     <script>
-        var speed = 50;
-        var i = 0; 
         var gold = 1;
         var building1 = 50;
-        function start(){
-         if (i < gold) {
-    	document.getElementById("demo").innerHTML += gold.charAt(i);
-    	i++;
-    	setTimeout(start, speed);
-        }
-        function addGold(){
-        gold+=1;
-        document.getElementById("demo").innerHTML += gold.charAt(i);
-        i++
-        setTimemout(start,speed);
-        }
+		document.getElementById("demo").innerHTML = gold;
+		function addGold(){
+		gold+=1;
+		document.getElementById("demo").innerHTML = gold;
+		}	
+       
         function buyBuilding(){
         if(building1 == gold){
+        gold-=50;
+        document.getElementById("demo").innerHTML = gold;
         for (let i = 0; i < 100; i++) { 
   		setTimeout("console.log('Gold recieved timer:D');", 1000);
         gold+=1;
+        document.getElementById("demo").innerHTML = gold;
 		}
         }else{
         console.log("Not enough goldD:");
