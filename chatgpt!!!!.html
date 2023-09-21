@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <body onload="start()"></body>
- <p id="display"></p>
+<h1> Gold script? idk</h1> 
+<p id="demo"></p>
     <button onclick="addGold()">Add Gold.</button>
+    <button onclick="buyBuilding()">Buy Building.</button>
     <script>
         var speed = 50;
         var i = 0; 
         var gold = 0;
+        var building1 = 50;
         function start(){
          if (i < gold.length) {
     	document.getElementById("demo").innerHTML += gold.charAt(i);
@@ -17,5 +20,14 @@
         document.getElementById("demo").innerHTML += gold.charAt(i);
         i++
         setTimemout(start,speed);
+        }
+        function buyBuilding(){
+        if(building1 == gold){
+        for (let i = 0; i < 100; i++) { 
+  		setTimeout("console.log('Gold recieved timer:D');", 1000);
+        gold+=1;
+		}
+        }else{
+        console.log("Not enough goldD:");
         }
     </script>
