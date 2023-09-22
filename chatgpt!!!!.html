@@ -3,10 +3,12 @@
     <p id="demo">Gold:</p>
     <button onclick="addGold()">Add Gold.</button>
     <button onclick="buyBuilding()">Buy Building.</button>
+    <button onclick="calculate()">Calculate money :D</button>
     
     <script>
-        var gold = 1;
+        var gold = 50;
         var building1 = 50;
+        var buildings = 0;
 		document.getElementById("demo").innerHTML = gold;
 		function addGold(){
 		gold+=1;
@@ -14,15 +16,22 @@
 		}	
        
         function buyBuilding(){
-        if(building1 == gold){
-        gold-=50;
+        if(building1 <= gold){
+        gold+=50;
+        buildings+=1;
         document.getElementById("demo").innerHTML = gold;
-        for (let i = 0; i < 100; i++) { 
-  		setTimeout("console.log('Gold recieved timer:D');", 1000);
-        gold+=1;
-        document.getElementById("demo").innerHTML = gold;
-		}
         }else{
         console.log("Not enough goldD:");
         }
+        }
+    
+        function calculate(){
+        gold+=buildings;
+        document.getElementById("demo").innerHTML = gold;
+        time();
+        }
+        function time(){
+        window.setTimeout(calculate, 1000);
+        }
     </script>
+
