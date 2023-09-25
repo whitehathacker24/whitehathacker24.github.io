@@ -2,35 +2,83 @@
     <h1> Gold script? idk</h1> 
     <p id="demo">Gold:</p>
     <button onclick="addGold()">Add Gold.</button>
+    <button onclick="upGrade()">Upgrade.</button>
     <button onclick="buyBuilding()">Buy Building.</button>
+    <button onclick="buyBuilding2()">Buy Building 2. </button>
     <button onclick="calculate()">Calculate money :D</button>
-    
     <script>
-        var gold = 50;
+        var gold = 100;
+        var upgrade = 50;
+        var click = 0;
         var building1 = 50;
+        var building2 = 100;
         var buildings = 0;
+        var buildings2 = 0;
+        //variables for clicker function//
 		document.getElementById("demo").innerHTML = gold;
-		function addGold(){
-		gold+=1;
+		//upgrade//
+        function upGrade(){
+ 		if(click<=3){
+        if(upgrade<=gold){
+        gold-=50;
+        document.getElementById("demo").innerHTML = gold;
+        click+=1;
+        }else{
+		console.log("Not enough Gold D:");       
+        }
+        }
+        }
+        //Clicker function//
+        function addGold(){
+        if(click==0){
+        gold+=1;
 		document.getElementById("demo").innerHTML = gold;
-		}	
+		}
+        if(click==1){
+        gold+=2;
+        document.getElementById("demo").innerHTML = gold;
+        }
+        if(click==2){
+        gold+=3;
+        document.getElementById("demo").innerHTML = gold;
+        }
+        }
        
+       //function for buying building1//
         function buyBuilding(){
+        if(buildings <= 4){
         if(building1 <= gold){
-        gold+=50;
+        gold-=50;
         buildings+=1;
         document.getElementById("demo").innerHTML = gold;
         }else{
         console.log("Not enough goldD:");
         }
         }
-    
+    	}
+        //code for buying building 2//
+  
+  
+        function buyBuilding2(){
+        if(buildings2 <=8){
+        if(building2 <= gold){
+		gold-=100;
+        buildings2+=2;
+        document.getElementById("demo").innerHTML = gold;
+        }else{
+        console.log("Not enough Gold D:");
+        }
+        }
+        }
+        //function for calculating money per second//
+        
         function calculate(){
         gold+=buildings;
+        gold+=buildings2;
         document.getElementById("demo").innerHTML = gold;
         time();
         }
-        function time(){
+          function time(){
         window.setTimeout(calculate, 1000);
         }
     </script>
