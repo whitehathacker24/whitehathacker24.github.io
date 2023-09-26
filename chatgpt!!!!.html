@@ -1,20 +1,41 @@
 <!DOCTYPE html>
     <h1> Gold script? idk</h1> 
     <p id="demo">Gold:</p>
+    
     <button onclick="addGold()">Add Gold.</button>
     <button onclick="upGrade()">Upgrade.</button>
     <button onclick="buyBuilding()">Buy Building.</button>
     <button onclick="buyBuilding2()">Buy Building 2. </button>
+    <button onclick="buyBuilding3()">Buy Building 3. </button>
     <button onclick="calculate()">Calculate money :D</button>
+    <button onclick="upGrade1()">Upgrade1</button>
+    <button onclick="upGrade2()">Upgrade2</button>
+    <button onclick="upGrade3()">Upgrade3</button>
     <script>
-        var gold = 100;
-        var upgrade = 50;
+        var gold = 1200;
+        var upgradeclick = 50;
         var click = 0;
+        //variables for buildings//
+        /* building costs */
         var building1 = 50;
         var building2 = 100;
+        var building3 = 200;
+        /* number of buildings*/
         var buildings = 0;
         var buildings2 = 0;
-        //variables for clicker function//
+        var buildings3 = 0;
+        /* upgrades for buildings*/
+        var upgradebuilding= 200;
+        var upgradebuilding2= 400;
+        var upgradebuilding3= 800;
+        //variables for calculating gold per second//
+        var goldsecond =0;
+        var goldsecond2 = 0;
+        var goldsecond3 = 0;
+        //variables for upgrades//
+        var upgradeamount1 = 1;
+        var upgradeamount2 = 1;
+        var upgradeamount3 = 1;
 		document.getElementById("demo").innerHTML = gold;
 		//upgrade//
         function upGrade(){
@@ -56,25 +77,66 @@
         }
         }
     	}
-        //code for buying building 2//
-  
-  
+        
+       //code for buying building 2//
         function buyBuilding2(){
-        if(buildings2 <=8){
+        if(buildings2 <=4){
         if(building2 <= gold){
 		gold-=100;
-        buildings2+=2;
+        buildings2+=1;
         document.getElementById("demo").innerHTML = gold;
         }else{
         console.log("Not enough Gold D:");
         }
         }
         }
-        //function for calculating money per second//
-        
+        //code for buying building 3//
+        function buyBuilding3(){
+        if(buildings3 <=4){
+        if(building3 <=gold){
+        gold-=200;
+        buildings3 +=1;
+        document.getElementById("demo").innerHTML = gold;
+        }else{
+        console.log("Not enough Gold D:");
+        }
+        }
+        }
+        //upgrade function for building 1//
+        function upGrade1(){
+        if(upgradeamount1<=1){
+        if(upgradebuilding<=gold){
+        gold-=200;
+        goldsecond+=2*buildings;
+        document.getElementById("demo").innerHTML = gold;
+        }
+        }
+        }
+        //upgrade function for building 2//
+        function upGrade2(){
+        if(upgradeamount2<=1){
+        if(upgradebuilding2<=gold){
+        gold-=400;
+        goldsecond2+=4*buildings2;
+        document.getElementById("demo").innerHTML = gold;
+        }
+        }
+        }
+        //upgrade function for building 3//
+        function upGrade3(){
+		if(upgradeamount3<=1){
+        if(upgradebuilding3<=gold){
+        gold-=800;
+        goldsecond3+=8*buildings3;
+        document.getElementById("demo").innerHTML = gold;
+        }
+        }
+        }
+        //function for calculating gold per second//
         function calculate(){
-        gold+=buildings;
-        gold+=buildings2;
+        gold+=goldsecond;
+        gold+=goldsecond2;
+        gold+=goldsecond3;
         document.getElementById("demo").innerHTML = gold;
         time();
         }
