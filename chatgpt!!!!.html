@@ -1,16 +1,41 @@
 <!DOCTYPE html>
     <h1> Gold script? idk</h1> 
     <p id="demo">Gold:</p>
-    
-    <button onclick="addGold()">Add Gold.</button>
-    <button onclick="upGrade()">Upgrade.</button>
-    <button onclick="buyBuilding()">Buy Building.</button>
-    <button onclick="buyBuilding2()">Buy Building 2. </button>
-    <button onclick="buyBuilding3()">Buy Building 3. </button>
+    <style>
+    .button-container {
+    display: flex;
+    }
+    img{
+       align: center;
+       display: block;
+  		margin-left: auto;
+ 	 	margin-right: auto;
+  		width: 25%;
+     }
+     </style>
+     <table>
+  <tr>
+    <th>Upgrades + </th>
+    <th>Buildings</th>
+  </tr>
+  <tr>
+    <td>Upgrades</td>
+    <td><button onclick="upGrade()">Upgrade</button></td>
+    <td><button onclick="upGrade1()">Upgrade1</button></td>
+    <td><button onclick="upGrade2()">Upgrade2</button></td>
+    <td><button onclick="upGrade3()">Upgrade3</button></td>
+  </tr>
+  <tr>
+    <td>Buildings</td>
+    <td><button onclick="buyBuilding()">Buy Building.</button> </td>
+    <td><button onclick="buyBuilding2()">Buy Building 2. </button></td>
+    <td><button onclick="buyBuilding3()">Buy Building 3. </button></td>
+  </tr>
+</table>
+    <button onclick="addGold()">
+    <img class="img" src="https://i.ibb.co/CW5Wvry/buttonpng.png"></img>
+    >Add Gold.</button>
     <button onclick="calculate()">Calculate money :D</button>
-    <button onclick="upGrade1()">Upgrade1</button>
-    <button onclick="upGrade2()">Upgrade2</button>
-    <button onclick="upGrade3()">Upgrade3</button>
     <script>
         var gold = 1200;
         var upgradeclick = 50;
