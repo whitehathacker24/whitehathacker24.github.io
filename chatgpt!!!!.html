@@ -45,22 +45,29 @@
         var building1 = 50;
         var building2 = 100;
         var building3 = 200;
+        var building4 = 400;
         /* number of buildings*/
         var buildings = 0;
         var buildings2 = 0;
         var buildings3 = 0;
+        var buildings4 = 0;
         /* upgrades for buildings*/
         var upgradebuilding= 200;
         var upgradebuilding2= 400;
         var upgradebuilding3= 800;
+        var upgradebuilding4 = 1600;
         //variables for calculating gold per second//
         var goldsecond =0;
         var goldsecond2 = 0;
         var goldsecond3 = 0;
+        var goldsecond4 = 0;
         //variables for upgrades//
         var upgradeamount1 = 1;
         var upgradeamount2 = 1;
         var upgradeamount3 = 1;
+        var upgradeamount4 = 1;
+        //time//
+				var timee = 0;
 		document.getElementById("demo").innerHTML = gold;
 		//upgrade//
         function upGrade(){
@@ -78,7 +85,7 @@
         function addGold(){
         if(click==0){
         gold+=1;
-		document.getElementById("demo").innerHTML = gold;
+				document.getElementById("demo").innerHTML = gold;
 		}
         if(click==1){
         gold+=2;
@@ -127,6 +134,17 @@
         }
         }
         }
+        function buyBuilding4(){
+        if(buildings4 <=4){
+        if(building4 <=gold){
+        gold-=400;
+        buildings4 +=1;
+        document.getElementById("demo").innerHTML = gold;
+        }else{
+        console.log("Not enough Gold D:");
+        }
+        }
+        }
         //upgrade function for building 1//
         function upGrade1(){
         if(upgradeamount1<=1){
@@ -143,16 +161,26 @@
         if(upgradeamount2<=1){
         if(upgradebuilding2<=gold){
         gold-=400;
+        goldsecond2+=4*buildings2;
         document.getElementById("demo").innerHTML = gold;
         }
         }
         }
         //upgrade function for building 3//
         function upGrade3(){
-		if(upgradeamount3<=1){
+				if(upgradeamount3<=1){
         if(upgradebuilding3<=gold){
         gold-=800;
         goldsecond3+=8*buildings3;
+        document.getElementById("demo").innerHTML = gold;
+        }
+        }
+        }
+        function upGrade4(){
+				if(upgradeamount4<=1){
+        if(upgradebuilding4<=gold){
+        gold-=1600;
+        goldsecond4+=16*buildings3;
         document.getElementById("demo").innerHTML = gold;
         }
         }
@@ -162,10 +190,15 @@
         gold+=goldsecond;
         gold+=goldsecond2;
         gold+=goldsecond3;
+        gold+=goldsecond4;
         document.getElementById("demo").innerHTML = gold;
         time();
+        timee+=1;
         }
           function time(){
+        if(timee==0){
         window.setTimeout(calculate, 1000);
+        }else{
+          alert("NO");
         }
     </script>
