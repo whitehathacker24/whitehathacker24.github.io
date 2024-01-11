@@ -71,9 +71,9 @@
 		document.getElementById("demo").innerHTML = gold;
 		//upgrade//
         function upGrade(){
- 		if(click<=3){
-        if(upgrade<=gold){
-        gold-=50;
+					if(click<=3){
+						if(upgrade<=gold){
+        			gold-=50;
         document.getElementById("demo").innerHTML = gold;
         click+=1;
         }else{
@@ -177,7 +177,7 @@
         }
         }
         function upGrade4(){
-				if(upgradeamount4<=1){
+		if(upgradeamount4<=1){
         if(upgradebuilding4<=gold){
         gold-=1600;
         goldsecond4+=16*buildings3;
@@ -196,9 +196,10 @@
         timee+=1;
         }
           function time(){
-        if(timee==0){
-        window.setTimeout(calculate, 1000);
-        }else{
-          alert("NO");
+        	if(timee==0){
+        	window.setTimeout(calculate, 1000);
+        	}else{
+         	 	alert("NO");
+        }
         }
     </script>
