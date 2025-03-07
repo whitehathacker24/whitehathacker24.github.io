@@ -3,13 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DuckDuckGo Scraper</title>
+    <title>DuckDuckGo Search Scraper</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        #results-box {
+            width: 80%;
+            max-width: 600px;
+            height: 300px;
+            border: 1px solid #ccc;
+            overflow-y: auto;
+            padding: 10px;
+            margin: 20px auto;
+            text-align: left;
+            background-color: #f9f9f9;
+        }
+        input, button {
+            padding: 10px;
+            font-size: 16px;
+            margin: 10px;
+        }
+    </style>
 </head>
 <body>
     <h1>DuckDuckGo Search Scraper</h1>
     <input type="text" id="searchQuery" placeholder="Enter search query">
     <button onclick="search()">Search</button>
-    <div id="results"></div>
+
+    <div id="results-box">
+        <h2>Results:</h2>
+        <div id="results"></div>
+    </div>
 
     <script>
         async function search() {
@@ -17,7 +44,7 @@
             const response = await fetch(`http://127.0.0.1:5000/search?query=${query}&pages=3`);
             const results = await response.json();
             
-            let resultsHtml = "<h2>Results:</h2>";
+            let resultsHtml = "";
             results.forEach(result => {
                 resultsHtml += `<p><a href="${result.url}" target="_blank">${result.title}</a></p>`;
             });
