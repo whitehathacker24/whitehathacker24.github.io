@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DuckDuckGo Scraper</title>
+</head>
+<body>
+    <h1>DuckDuckGo Search Scraper</h1>
+    <input type="text" id="searchQuery" placeholder="Enter search query">
+    <button onclick="search()">Search</button>
+    <div id="results"></div>
+
+    <script>
+        async function search() {
+            const query = document.getElementById('searchQuery').value;
+            const response = await fetch(`http://127.0.0.1:5000/search?query=${query}&pages=3`);
+            const results = await response.json();
+            
+            let resultsHtml = "<h2>Results:</h2>";
+            results.forEach(result => {
+                resultsHtml += `<p><a href="${result.url}" target="_blank">${result.title}</a></p>`;
+            });
+
+            document.getElementById("results").innerHTML = resultsHtml;
+        }
+    </script>
+</body>
+</html>
