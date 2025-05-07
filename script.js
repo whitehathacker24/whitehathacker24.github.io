@@ -15,7 +15,7 @@ function stufff(){
   alert("e");
 }
 const mathsymbols = /[+\-*/Ω√∫]/; // Regular expression to check for math symbols
-const list = ["triangle", "square", "rectangle", "prop", "circle", "sphere", "cylinder"]; // List of shape keywords
+const list = ["triangle", "square", "rectangle", "prop", "circle", "sphere", "cylinder","ellipse"]; // List of shape keywords
 
 function input() {
   const Question2 = document.getElementById("question").value;
@@ -120,7 +120,43 @@ function input() {
       } else {
         textBox.innerHTML = "Please provide valid radius and height.";
       }
-
+    } else if(shape === "ellipse"){
+      const a = parseFloat(splitQuestion[1]);
+      const b = parseFloat(splitQuestion[2]);
+      const pie = Math.PI;
+      const inputsss = prompt("Area[1], Axis A[2], Axis B[3], Circumference[4]");
+      if (inputsss ==="1"){
+        area = a*b*pie;
+        textBox.innerHTML = "Area: " + area;
+      }else if(inputsss ==="2"){
+        solution = a/pie*b;
+        textBox.innerHTML = "Solution: " + solution;
+      }else if(inputsss ==="3"){
+        solution = a/pie*b;
+        textBox.innerHTML = "Solution: " + solution;
+      }else if(inputsss ==="4"){
+        starting1 = a+b;
+        starting = starting1 * pie;
+        //multiply
+        square_subtract_stuff = a-b;
+        //adding
+        square_add_stuff = a+b;
+        //h value
+        h_value3 = square_subtract_stuff/square_add_stuff;
+        h_value2 = h_value3 ** 2;
+        h_value1 = h_value2 *3;
+        //bottom
+        bottom2_1 = h_value1 * -1;
+        bottom2 = bottom2_1 + 4;
+        bottom1 =Math.sqrt(bottom2);
+        bottom = 10+bottom1;
+        //top
+        solution_3 = h_value1/bottom;
+        solution_2 = solution_3+1;
+        solution = solution_2 * starting;
+        
+        textBox.innerHTML = "Solution: "+solution;
+      }
     } else if (shape === "prop") {
       const first_one = splitQuestion[1].split("/");
       const second_one = splitQuestion[2].split("/");
