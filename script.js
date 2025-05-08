@@ -9,19 +9,18 @@ document.addEventListener('DOMContentLoaded', function () {
 function input2() {
   localStorage.clear();
   console.log("Local storage cleared.");
-  alert("E");
+  
 }
-function stufff(){
-  alert("e");
+function test(){
+  alert("HI");
 }
 const mathsymbols = /[+\-*/Ω√∫]/; // Regular expression to check for math symbols
 const list = ["triangle", "square", "rectangle", "prop", "circle", "sphere", "cylinder","ellipse"]; // List of shape keywords
-
 function input() {
   const Question2 = document.getElementById("question").value;
   const Answer2 = document.getElementById("answer").value;
   const Question = Question2.toLowerCase().trim();
-  const Answer = Answer2
+  const Answer = Answer2;
   const textBox = document.getElementById("text_box");
   // Check localStorage
   if (localStorage.getItem(Question) !== null) {
@@ -37,7 +36,6 @@ function input() {
     textBox.innerHTML = "Answer stored.";
     return;
   }
-
   // Check for shapes
   if (list.some(word => Question.includes(word))) {
     const splitQuestion = Question.split(" ");
@@ -192,9 +190,20 @@ function input() {
       }else if(special2[0]==="x"){
         sum3 = parseInt(first_one[0])* parseInt(second_one[1]);
         sum2 = parseInt(special2[1])*parseInt(second_one[0]);
-        sum1 = parseInt(sum3) - parseInt(sum2)
-
+        sum1 = parseInt(sum3) - parseInt(sum2);
         sum = sum1/parseInt(second_one[0])
+        textBox.innerHTML = "Answer: " + sum;
+      }else if(special3[0]==="x"){
+        sum3 = parseInt(first_one[0])*parseInt(second_one[1]);
+        sum2 = parseInt(special3[1])*parseInt(first_one[1]);
+        sum1 = parseInt(sum3)-parseInt(sum2);
+        sum = sum1/parseInt(first_one[1]);
+        textBox.innerHTML = "Answer: " + sum;
+      }else if(special4[0]==="x"){
+        sum3 = parseInt(first_one[1])*parseInt(second_one[0]);
+        sum2 = parseInt(first_one[0])*parseInt(special4[1]);
+        sum1 = sum3 - sum2;
+        sum = sum1/parseInt(first_one[0]);
         textBox.innerHTML = "Answer: " + sum;
         }
       }
