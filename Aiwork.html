@@ -1,17 +1,44 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Page Title</title>
-    <link href="styles.css" rel="stylesheet" />
-  </head>
-  <body>
-    <h1>Smart Bot</h1>
-    <input type="text" id="question">
-    <script src="script.js"></script>
-    <button onclick="input()">Question</button>
-    <p></p>
-    <input type="text" id="answer">
-    <button onclick= "input2()">Answer</button>
-    <p id = "text_box"></p>
-  </body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Bot</title>
+  <link href="styles.css" rel="stylesheet" />
+  <!-- Font Awesome for icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+</head>
+<body>
+  <!-- Page Header -->
+  <h1>Smart Bot</h1>
+
+  <!-- Top-right dropdown menu -->
+  <div class="dropdown">
+    <button class="dropbtn"><i class="fas fa-cogs"></i></button>
+    <div class="dropdown-content">
+      <a href="#">Link 1</a>
+      <a href="#">Link 2</a>
+      <a href="#">Link 3</a>
+    </div>
+  </div>
+
+  <!-- Chat Question Input -->
+  <div class="chat-controls">
+    <input type="text" id="question" placeholder="Ask a question..." />
+    <button onclick="input()">Submit Question</button>
+  </div>
+
+  <!-- Chat Answer Input -->
+  <div class="chat-controls">
+    <input type="text" id="answer" placeholder="Type your answer..." />
+    <button onclick="input2()">Submit Answer</button>
+  </div>
+
+  <!-- Dynamic text display -->
+  <p id="text_box"></p>
+  <p id="yay"></p>
+
+  <!-- JavaScript -->
+  <script src="script.js"></script>
+</body>
 </html>
