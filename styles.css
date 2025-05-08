@@ -1,0 +1,107 @@
+/* Base styles */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: #f8f8f8;
+}
+
+/* Header */
+h1 {
+  text-align: center;
+  margin-top: 50px;
+}
+
+/* Chat input and button layout */
+.chat-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 10px;
+  flex-wrap: wrap;
+}
+
+/* Text input styling */
+input[type="text"] {
+  padding: 10px;
+  width: 100%;
+  max-width: 500px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+/* Button styling */
+button {
+  padding: 10px 15px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:focus {
+  outline: 2px solid #ffbf47;
+  box-shadow: 0 0 5px rgba(255, 191, 71, 0.5);
+}
+
+/* Dropdown menu styles */
+.dropdown {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: inline-block;
+}
+
+.dropbtn {
+  background-color: transparent;
+  color: black;
+  padding: 8px;
+  font-size: 20px;
+  border: none;
+  cursor: pointer;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  background-color: white;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+  z-index: 1;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  transition: background-color 0.2s;
+}
+
+.dropdown-content a:hover {
+  background-color: #ddd;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+.dropdown:hover .dropbtn {
+  background-color: #3e8e41;
+  color: white;
+}
+
+/* Paragraph output styling */
+#text_box, #yay {
+  text-align: center;
+  padding: 10px;
+  font-size: 18px;
+}
