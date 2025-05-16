@@ -15,7 +15,7 @@ function test(){
   alert("HI");
 }
 const mathsymbols = /[+\-*/Ω√∫]/; // Regular expression to check for math symbols
-const list = ["triangle", "square", "rectangle", "prop", "circle", "sphere", "cylinder","ellipse"]; // List of shape keywords
+const list = ["triangle", "square", "rectangle", "prop", "circle", "sphere", "cylinder","ellipse","quad","poly", "cone"]; // List of shape keywords
 function input() {
   const Question2 = document.getElementById("question").value;
   const Answer2 = document.getElementById("answer").value;
@@ -118,6 +118,98 @@ function input() {
       } else {
         textBox.innerHTML = "Please provide valid radius and height.";
       }
+    }else if(shape =="poly"){
+      const apothem = parseFloat(splitQuestion[1]);
+      const perimeter = parseFloat(splitQuestion[2]);
+      sum = apothem * perimeter * .5;
+      textBox.innerHTML = "Result: "+ sum;
+    } else if(shape ==="quad"){
+      const a = parseFloat(splitQuestion[1]);
+      const b = parseFloat(splitQuestion[2]);
+      const c = parseFloat(splitQuestion[3]);
+      const negb = b*-1;
+      //top
+      top4 = b**2;
+      alert(top4);
+      top3 = 4*a*c;
+      alert(top3);
+      top2 = top4 - top3;
+      alert(top2);
+      if (top2 < 0){
+        top2 *= -1;
+        alert(top2);
+        top1 = Math.sqrt(top2);
+        alert(top1);
+        bottom = 2*a;
+        //first solution
+        sum2 = negb + top1;
+        sum1_5 = sum2/bottom;
+        sum1 = sum1_5 *=-1;
+        //second solution
+        sum4 = negb - top1;
+        sum3_5 = sum4/bottom;
+        sum3 = sum3_5 *=-1;
+        textBox.innerHTML = "First Solution" + sum1 + " Second Solution" + sum3;
+      }else{
+        alert(top2);
+        top1 = Math.sqrt(top2);
+        alert(top1);
+        //bottom
+        bottom = 2*a;
+        //first solution
+        sum2 = negb + top1;
+        sum1 = sum2/bottom;
+        //second solution
+        sum4 = negb - top1;
+        sum3 = sum4/bottom;
+        textBox.innerHTML = "First Solution" + sum1 + " Second Solution" + sum3;
+    }
+    }else if(shape ==="cone"){
+      alert("HI");
+      const inputsss = prompt("Surface Area[1], Lateral Surface Area[2], Volume[3], height[4], Radius[5]");
+      const a = parseFloat(splitQuestion[1]);
+      const b = parseFloat(splitQuestion[2]);
+      const pie = Math.PI;
+      if(inputsss === "1"){
+        sum3_6 = b**2;
+        sum3_5 = a**2;
+        sum3_4 = sum3_6 + sum3_5;
+        sum3 = Math.sqrt(sum3_4);
+        sum2 = a + sum3;
+        sum1 = pie * a * sum2
+        textBox.innerHTML = "Solution "+ sum1;
+      }else if(inputsss ==="2"){
+        //πr √h2+r2
+        sum4 = b**2;
+        sum3 = a**2;
+        sum2 = sum3 + sum4;
+        sum2_5 = Math.sqrt(sum2);
+        sum1 = pie * a * sum2_5;
+        textBox.innerHTML = "Solution "+sum1;
+      }else if(inputsss ==="3"){
+        sum3 == a**2;
+        sum3_5 = pie *sum3;
+        sum2 = b/3;
+        sum1 = sum3_5 * sum2;
+        textBox.innerHTML = "Solution "+ sum1;
+      }else if(inputsss ==="4"){
+        sum4 = a **2;
+        sum3 = pie * sum4;
+        sum2 = b/sum3;
+        sum1 = 3 * sum2;
+        textBox.innerHTML = "Solution "+ sum1;
+      }else if(inputsss ==="5"){
+        sum8 = a**2;
+        sum7 = pie *sum8;
+        sum6 = 2*b;
+        sum5 = sum7 + sum6;
+        sum4 = sum5 * pie;
+        sum3 = b**2;
+        sum2 = sum3/sum4;
+        sum1 = Math.sqrt(sum2);
+        textBox.innerHTML = "Solution "+ sum1;
+      }
+      //πr(r+h2+r2)
     } else if(shape === "ellipse"){
       const a = parseFloat(splitQuestion[1]);
       const b = parseFloat(splitQuestion[2]);
