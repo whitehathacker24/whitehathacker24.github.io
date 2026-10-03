@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedIn Professional Network</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { linkedin: { DEFAULT: '#0a66c2', hover: '#004182', bg: '#f3f2ef', border: '#e0dfdc' } }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-[#f3f2ef] text-[#191919] font-sans min-h-screen">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+        const channel = new BroadcastChannel('linkedin_sync_v3');
+
+        function App() {
+            const [users, setUsers] = useState(() => {
+                const saved = localStorage.getItem('li_users_v3');
+                if (saved) return JSON.parse(saved);
+                const defaults = [
+                    { id: 1, email: 'alice@tech.com', full_name: 'Alice Johnson', headline: 'Cloud Architect at AWS', avatar_url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150', bio: 'Building scalable distributed systems.' },
+                    { id: 2, email: 'bob@dev.com', full_name: 'Bob Smith', headline: 'Full-Stack Engineer', avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150', bio: 'React & Node.js enthusiast.' },
+                    { id: 3, email: 'charlie@design.com', full_name: 'Charlie Davis', headline: 'Lead UX Designer', avatar_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150', bio: 'Creating intuitive user experiences.' }
+                ];
+                localStorage.setItem('li_users_v3', JSON.stringify(defaults));
+                return defaults;
+            });
+
+            const [currentUser, setCurrentUser] = useState(() => {
+                const saved = localStorage.getItem('li_current_v3');
+                return saved ? JSON.parse(saved) : null;
+            });
+
+            const [posts, setPosts] = useState(() => {
+                const saved = localStorage.getItem('li_posts_v3');
+                if (saved) return JSON.parse(saved);
+                const initial = [{
+                    id: 1, user_id: 1, author: 'Alice Johnson', headline: 'Cloud Architect at AWS',
+                    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150',
+                    content: 'Excited to announce our new cloud framework release!',
+                    image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600',
+                    timestamp: '2h ago', likes: [2, 3], comments: []
+                }];
+                localStorage.setItem('li_posts_v3', JSON.stringify(initial));
+                return initial;
+            });
+
+            const [messages, setMessages] = useState(() => {
+                const saved = localStorage.getItem('li_msgs_v3');
+                return saved ? JSON.parse(saved) : [];
+            });
+
+            useEffect(() => {
+                const handleStorage = (e) => {
+                    if (e.key === 'li_msgs_v3') setMessages(JSON.parse(e.newValue || '[]'));
+                    if (e.key === 'li_posts_v3') setPosts(JSON.parse(e.newValue || '[]'));
+                };
+                window.addEventListener('storage', handleStorage);
+
+                channel.onmessage = (event) => {
+                    if (event.data.type === 'MSG') setMessages(prev => [...prev, event.data.payload]);
+                    if (event.data.type === 'POSTS') setPosts(event.data.payload);
+                };
+
+                return () => window.removeEventListener('storage', handleStorage);
+            }, []);
+
+            useEffect(() => { localStorage.setItem('li_posts_v3', JSON.stringify(posts)); }, [posts]);
+            useEffect(() => { localStorage.setItem('li_msgs_v3', JSON.stringify(messages)); }, [messages]);
+            useEffect(() => {
+                if (currentUser) localStorage.setItem('li_current_v3', JSON.stringify(currentUser));
+                else localStorage.removeItem('li_current_v3');
+            }, [currentUser]);
+
+            if (!currentUser) {
+                return (
+                    <div className="min-h-screen flex flex-col justify-center items-center px-4">
+                        <div className="text-3xl font-bold text-[#0a66c2] mb-6">Linked<span className="bg-[#0a66c2] text-white px-1.5 rounded text-2xl">in</span></div>
+                        <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md border border-[#e0dfdc]">
+                            <h2 className="text-xl font-semibold mb-4">Sign in to your account</h2>
+                            <form onSubmit={(e) => {
+                                e.preventDefault();
+                                const email = e.target.email.value;
+                                const found = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+                                if (found) setCurrentUser(found);
+                                else alert('User not found. Try one of the demo emails below.');
+                            }} className="space-y-4">
+                                <input name="email" type="email" placeholder="Email (e.g. alice@tech.com)" required className="w-full p-3 border rounded text-sm focus:outline-[#0a66c2]" />
+                                <button type="submit" className="w-full bg-[#0a66c2] text-white font-semibold p-3 rounded-full hover:bg-[#004182]">Sign in</button>
+                            </form>
+                            <div className="mt-6 pt-4 border-t text-center">
+                                <p className="text-xs text-gray-500 mb-2">Or click to log in instantly:</p>
+                                <div className="flex gap-2 justify-center">
+                                    {users.map(u => (
+                                        <button key={u.id} onClick={() => setCurrentUser(u)} className="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded border">
+                                            {u.full_name.split(' ')[0]}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            return <Dashboard currentUser={currentUser} setCurrentUser={setCurrentUser} users={users} posts={posts} setPosts={setPosts} messages={messages} setMessages={setMessages} />;
+        }
+
+        function Dashboard({ currentUser, setCurrentUser, users, posts, setPosts, messages, setMessages }) {
+            const [tab, setTab] = useState('feed');
+            const [activeChat, setActiveChat] = useState(null);
+            const [msgInput, setMsgInput] = useState('');
+            const [postContent, setPostContent] = useState('');
+            const [postImg, setPostImg] = useState('');
+            const [commentInputs, setCommentInputs] = useState({});
+            const chatEnd = useRef(null);
+
+            useEffect(() => { chatEnd.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, activeChat]);
+
+            const contacts = users.filter(u => u.id !== currentUser.id);
+            const activeMsgs = activeChat ? messages.filter(m => 
+                (m.sender_id === currentUser.id && m.recipient_id === activeChat.id) ||
+                (m.sender_id === activeChat.id && m.recipient_id === currentUser.id)
+            ) : [];
+
+            return (
+                <div className="min-h-screen bg-[#f3f2ef] pb-16">
+                    <header className="bg-white border-b border-[#e0dfdc] sticky top-0 z-50">
+                        <div className="max-w-[1128px] mx-auto px-4 h-13 flex items-center justify-between">
+                            <div className="text-3xl font-bold text-[#0a66c2] cursor-pointer" onClick={() => setTab('feed')}>In</div>
+                            <nav className="flex items-center gap-6 text-xs text-gray-500 font-medium">
+                                <button onClick={() => setTab('feed')} className={`hover:text-black ${tab === 'feed' ? 'text-black font-bold' : ''}`}>Home</button>
+                                <button onClick={() => setTab('jobs')} className={`hover:text-black ${tab === 'jobs' ? 'text-black font-bold' : ''}`}>Jobs</button>
+                                <button onClick={() => contacts.length > 0 && setActiveChat(contacts[0])} className="hover:text-black">Messaging</button>
+                                <button onClick={() => setCurrentUser(null)} className="text-red-600 font-semibold">Sign Out</button>
+                            </nav>
+                        </div>
+                    </header>
+
+                    <main className="max-w-[1128px] mx-auto pt-6 px-4">
+                        {tab === 'feed' && (
+                            <div className="grid grid-cols-1 md:grid-cols-[220px_560px_300px] gap-6">
+                                <aside className="bg-white rounded-lg border border-[#e0dfdc] p-4 text-center h-fit">
+                                    <img src={currentUser.avatar_url} className="w-16 h-16 rounded-full mx-auto object-cover mb-2" />
+                                    <h2 className="font-semibold text-sm">{currentUser.full_name}</h2>
+                                    <p className="text-xs text-gray-500 mt-1">{currentUser.headline}</p>
+                                </aside>
+
+                                <section className="space-y-4">
+                                    <div className="bg-white p-4 rounded-lg border border-[#e0dfdc]">
+                                        <form onSubmit={(e) => {
+                                            e.preventDefault();
+                                            if (!postContent.trim()) return;
+                                            const newPost = {
+                                                id: Date.now(), user_id: currentUser.id, author: currentUser.full_name,
+                                                headline: currentUser.headline, avatar: currentUser.avatar_url,
+                                                content: postContent, image: postImg || null, timestamp: 'Just now',
+                                                likes: [], comments: []
+                                            };
+                                            const updated = [newPost, ...posts];
+                                            setPosts(updated);
+                                            channel.postMessage({ type: 'POSTS', payload: updated });
+                                            setPostContent(''); setPostImg('');
+                                        }} className="space-y-3">
+                                            <textarea value={postContent} onChange={e => setPostContent(e.target.value)} placeholder="Start a post..." className="w-full border rounded-full px-4 py-2 text-sm focus:outline-none resize-none" rows="1" />
+                                            <input type="text" placeholder="Optional Image URL" value={postImg} onChange={e => setPostImg(e.target.value)} className="w-full text-xs p-2 border rounded bg-gray-50" />
+                                            <div className="flex justify-end"><button type="submit" className="bg-[#0a66c2] text-white text-xs px-4 py-2 rounded-full">Post</button></div>
+                                        </form>
+                                    </div>
+
+                                    {posts.map(post => (
+                                        <div key={post.id} className="bg-white rounded-lg border border-[#e0dfdc] pt-3">
+                                            <div className="flex items-center px-4 gap-3 mb-2">
+                                                <img src={post.avatar} className="w-10 h-10 rounded-full object-cover" />
+                                                <div>
+                                                    <h3 className="font-semibold text-sm">{post.author}</h3>
+                                                    <p className="text-xs text-gray-500">{post.headline}</p>
+                                                </div>
+                                            </div>
+                                            <p className="px-4 text-sm text-gray-800 mb-3">{post.content}</p>
+                                            {post.image && <img src={post.image} className="w-full max-h-80 object-cover mb-3" />}
+                                            <div className="px-4 py-2 border-t text-xs text-gray-500 flex justify-between">
+                                                <span>{post.likes.length} Likes</span>
+                                                <span>{post.comments.length} Comments</span>
+                                            </div>
+                                            <div className="flex justify-around py-1 text-xs border-t">
+                                                <button onClick={() => {
+                                                    const updated = posts.map(p => {
+                                                        if (p.id === post.id) {
+                                                            const liked = p.likes.includes(currentUser.id);
+                                                            return { ...p, likes: liked ? p.likes.filter(id => id !== currentUser.id) : [...p.likes, currentUser.id] };
+                                                        }
+                                                        return p;
+                                                    });
+                                                    setPosts(updated);
+                                                    channel.postMessage({ type: 'POSTS', payload: updated });
+                                                }} className={`font-semibold ${post.likes.includes(currentUser.id) ? 'text-[#0a66c2]' : 'text-gray-600'}`}>Like</button>
+                                                <button className="text-gray-600 font-semibold">Comment</button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </section>
+
+                                <aside className="bg-white rounded-lg border border-[#e0dfdc] p-4 h-fit">
+                                    <h3 className="font-semibold text-sm mb-2">Direct Chats</h3>
+                                    <div className="space-y-2">
+                                        {contacts.map(c => (
+                                            <div key={c.id} onClick={() => setActiveChat(c)} className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded cursor-pointer">
+                                                <img src={c.avatar_url} className="w-7 h-7 rounded-full object-cover" />
+                                                <span className="text-xs font-semibold">{c.full_name}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </aside>
+                            </div>
+                        )}
+
+                        {tab === 'jobs' && (
+                            <div className="max-w-2xl mx-auto space-y-4">
+                                <h2 className="text-lg font-bold">Featured Job Openings</h2>
+                                <div className="bg-white p-4 rounded-lg border border-[#e0dfdc] space-y-2">
+                                    <h3 className="font-bold text-sm text-[#0a66c2]">Senior Frontend Engineer</h3>
+                                    <p className="text-xs text-gray-600">Stripe • Remote • $160k - $210k</p>
+                                    <button onClick={() => alert('Application submitted successfully!')} className="border border-[#0a66c2] text-[#0a66c2] text-xs px-4 py-1.5 rounded-full font-semibold">Easy Apply</button>
+                                </div>
+                            </div>
+                        )}
+                    </main>
+
+                    {activeChat && (
+                        <div className="fixed bottom-0 right-4 w-80 bg-white rounded-t-lg border shadow-2xl z-50 flex flex-col h-80">
+                            <div className="bg-[#0a66c2] text-white p-2.5 flex justify-between items-center rounded-t-lg">
+                                <span className="text-xs font-semibold">{activeChat.full_name}</span>
+                                <button onClick={() => setActiveChat(null)}>✕</button>
+                            </div>
+                            <div className="flex-1 p-3 overflow-y-auto space-y-2 text-xs bg-gray-50">
+                                {activeMsgs.map((m, idx) => {
+                                    const isMe = m.sender_id === currentUser.id;
+                                    return (
+                                        <div key={idx} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
+                                            <div className={`p-2 rounded-lg max-w-[75%] ${isMe ? 'bg-[#0a66c2] text-white' : 'bg-white border text-gray-800'}`}>{m.content}</div>
+                                        </div>
+                                    );
+                                })}
+                                <div ref={chatEnd} />
+                            </div>
+                            <form onSubmit={(e) => {
+                                e.preventDefault();
+                                if (!msgInput.trim()) return;
+                                const msg = { sender_id: currentUser.id, recipient_id: activeChat.id, content: msgInput, timestamp: Date.now() };
+                                setMessages(prev => [...prev, msg]);
+                                channel.postMessage({ type: 'MSG', payload: msg });
+                                setMsgInput('');
+                            }} className="p-2 border-t flex gap-2">
+                                <input type="text" placeholder="Type a message..." value={msgInput} onChange={e => setMsgInput(e.target.value)} className="w-full text-xs border rounded px-2 py-1 focus:outline-none" />
+                                <button type="submit" className="bg-[#0a66c2] text-white text-xs px-3 py-1 rounded">Send</button>
+                            </form>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
+
